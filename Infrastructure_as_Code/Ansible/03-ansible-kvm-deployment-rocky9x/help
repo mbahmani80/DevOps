@@ -1,3 +1,35 @@
+# Change the following files based on your environment:
+$ cat inventories/production/hosts.yml 
+all:
+  children:
+
+    kvm_hosts:
+      hosts:
+        vml-kvm01-rocky:
+          ansible_host: 192.168.178.35
+        vml-kvm02-rocky:
+          ansible_host: 192.168.178.36
+
+$ cat inventories/production/group_vars/kvm_hosts.yml 
+kvm_admin_user: sysadmin
+
+cpu_vendor: intel
+
+hostname_domain: lab.local
+
+enable_nested_kvm: true
+
+ip_forward: 1
+rp_filter: 2
+
+hosts_entries:
+  - "192.168.178.35 vml-kvm01-rocky.lab.local vml-kvm01-rocky"
+  - "192.168.178.36 vml-kvm02-rocky.lab.local vml-kvm02-rocky"
+  - "192.168.100.35 vml-kvm01-rocky-mig.lab.local vml-kvm01-rocky"
+  - "192.168.100.36 vml-kvm02-rocky-mig.lab.local vml-kvm02-rocky"
+
+use_tpm: true
+#-----------------------------------------------------------------------------------------------------------
 # ansible all -m ping
 ANSIBLE_CONFIG=ansible.cfg ansible all -i inventories/production/hosts.yml -m ping -u sysadmin
 
