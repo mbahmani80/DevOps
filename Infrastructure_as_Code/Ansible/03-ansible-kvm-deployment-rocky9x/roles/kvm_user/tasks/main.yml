@@ -1,0 +1,14 @@
+---
+# tasks file for roles/kvm_user
+
+- name: Add user to KVM group
+  user:
+    name: "{{ kvm_admin_user }}"
+    groups: kvm
+    append: yes
+
+- name: Add user to libvirt group
+  user:
+    name: "{{ kvm_admin_user }}"
+    groups: libvirt
+    append: yes

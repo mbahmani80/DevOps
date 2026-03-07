@@ -1,0 +1,18 @@
+kvm_admin_user: sysadmin
+
+cpu_vendor: intel
+
+hostname_domain: lab.local
+
+enable_nested_kvm: true
+
+ip_forward: 1
+rp_filter: 2
+
+hosts_entries:
+  - "172.28.150.150 kvm3-node01.lab.local kvm3-node01"
+  - "172.28.150.151 kvm3-node02.lab.local kvm3-node02"
+  - "172.28.153.150 kvm3-node01-mig.lab.local kvm3-node01-mig"
+  - "172.28.153.151 kvm3-node02-mig.lab.local kvm3-node02-mig"
+
+use_tpm: true

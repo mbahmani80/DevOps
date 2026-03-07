@@ -1,0 +1,55 @@
+---
+# tasks file for roles/common_packages
+- name: Enable EPEL
+  dnf:
+    name: epel-release
+    state: present
+
+- name: Install security and network tools
+  dnf:
+    name:
+      - fail2ban
+      - openssl
+      - sshguard
+      - tcpdump
+      - net-tools
+      - lldpd
+      - bind-utils
+    state: present
+
+- name: Install storage tools
+  dnf:
+    name:
+      - lvm2
+      - xfsprogs
+      - nfs-utils
+      - rsync
+      - parted
+      - lsscsi
+    state: present
+
+- name: Install admin utilities
+  dnf:
+    name:
+      - vim
+      - nano
+      - screen
+      - curl
+      - wget
+      - zip
+      - unzip
+      - lshw
+      - pv
+    state: present
+
+- name: Install monitoring tools
+  dnf:
+    name:
+      - htop
+      - iotop
+      - iftop
+      - sysstat
+      - dstat
+      - glances
+      - gpm
+    state: present

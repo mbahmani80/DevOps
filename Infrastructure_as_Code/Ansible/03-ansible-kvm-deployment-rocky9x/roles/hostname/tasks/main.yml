@@ -1,0 +1,12 @@
+---
+# tasks file for roles/hostname
+---
+- name: Configure hostname
+  hostname:
+    name: "{{ inventory_hostname }}.{{ hostname_domain }}"
+
+- name: Configure hosts file
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ item }}"
+  loop: "{{ hosts_entries }}"

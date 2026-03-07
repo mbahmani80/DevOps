@@ -1,0 +1,28 @@
+---
+# tasks file for roles/kvm_install
+- name: Install KVM packages
+  dnf:
+    name:
+      - qemu-kvm
+      - libvirt
+      - virt-install
+      - libguestfs-tools
+      - virt-top
+      - virt-viewer
+    state: present
+
+- name: Install TPM support
+  dnf:
+    name:
+      - edk2-ovmf
+      - swtpm
+      - swtpm-tools
+      - gpm
+    state: present
+  when: use_tpm
+
+- name: Enable libvirt
+  systemd:
+    name: libvirtd
+    state: started
+    enabled: yes

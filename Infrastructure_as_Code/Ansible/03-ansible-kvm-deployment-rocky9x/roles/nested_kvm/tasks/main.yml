@@ -1,0 +1,9 @@
+---
+# tasks file for roles/nested_kvm
+
+- name: Configure nested KVM
+  copy:
+    dest: /etc/modprobe.d/kvm.conf
+    content: |
+      options kvm_{{ cpu_vendor }} nested=1
+  when: enable_nested_kvm

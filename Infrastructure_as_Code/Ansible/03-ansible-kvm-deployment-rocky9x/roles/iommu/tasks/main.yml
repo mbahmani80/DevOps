@@ -1,0 +1,7 @@
+---
+# tasks file for roles/iommu
+- name: Enable IOMMU kernel parameters
+  command: grubby --update-kernel=ALL --args="{{ cpu_vendor }}_iommu=on iommu=pt"
+
+- name: Rebuild initramfs
+  command: dracut -f

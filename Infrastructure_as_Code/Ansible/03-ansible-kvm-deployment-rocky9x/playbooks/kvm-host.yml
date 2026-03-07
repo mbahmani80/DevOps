@@ -1,0 +1,15 @@
+---
+- name: Configure Rocky Linux KVM Hypervisor
+  hosts: kvm_hosts
+  become: true
+
+  roles:
+
+    - common_packages
+    - hostname
+    - selinux
+    - kvm_install
+    - sysctl
+    - iommu
+    - nested_kvm
+    - kvm_user

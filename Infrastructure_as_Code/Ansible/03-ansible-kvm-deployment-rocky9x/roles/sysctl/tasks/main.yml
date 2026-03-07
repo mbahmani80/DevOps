@@ -1,0 +1,15 @@
+---
+# tasks file for roles/sysctl
+- name: Enable IP forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "{{ ip_forward }}"
+    state: present
+    reload: yes
+
+- name: Configure reverse path filtering
+  sysctl:
+    name: net.ipv4.conf.all.rp_filter
+    value: "{{ rp_filter }}"
+    state: present
+    reload: yes
