@@ -10,9 +10,9 @@ ip_forward: 1
 rp_filter: 2
 
 hosts_entries:
-  - "172.28.150.150 kvm3-node01.lab.local kvm3-node01"
-  - "172.28.150.151 kvm3-node02.lab.local kvm3-node02"
-  - "172.28.153.150 kvm3-node01-mig.lab.local kvm3-node01-mig"
-  - "172.28.153.151 kvm3-node02-mig.lab.local kvm3-node02-mig"
+  - "192.168.178.35 vml-kvm01-rocky.lab.local vml-kvm01-rocky"
+  - "192.168.178.36 vml-kvm02-rocky.lab.local vml-kvm02-rocky"
+  - "192.168.100.35 vml-kvm01-rocky-mig.lab.local vml-kvm01-rocky"
+  - "192.168.100.36 vml-kvm02-rocky-mig.lab.local vml-kvm02-rocky"
 
 use_tpm: true

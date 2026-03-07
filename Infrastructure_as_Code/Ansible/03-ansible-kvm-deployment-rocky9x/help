@@ -1,0 +1,11 @@
+# ansible all -m ping
+ANSIBLE_CONFIG=ansible.cfg ansible all -i inventories/production/hosts.yml -m ping -u sysadmin
+
+# Syntax check:
+ANSIBLE_CONFIG=ansible.cfg ansible-playbook playbooks/kvm-host.yml --syntax-check 
+
+# Dry run:
+ANSIBLE_CONFIG=ansible.cfg ansible-playbook playbooks/kvm-host.yml --check  -u sysadmin --ask-become-pass
+
+# Run deployment:
+ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i inventories/production/hosts.yml playbooks/kvm-host.yml -u sysadmin --ask-become-pass
