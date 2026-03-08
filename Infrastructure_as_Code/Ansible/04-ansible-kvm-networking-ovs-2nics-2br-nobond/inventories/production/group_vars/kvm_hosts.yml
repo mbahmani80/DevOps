@@ -1,18 +1,20 @@
+# br0 - management
 br0_name: br0
-br0_interface: enp1s0
+br0_interface1: enp1s0
+br0_mtu: 1500
+br0_ip: "{{ ansible_host }}"
 br0_prefix: 24
-br0_gateway: 192.168.178.1
-
+br0_gw: 192.168.178.1
 br0_dns:
   - 8.8.8.8
   - 1.1.1.1
 
-br0_mtu: 1500
 
-
+# br1 - storage (no IP)
 br1_name: br1
-br1_interface: enp8s0 
-storage_mtu: 1500
+br1_interface1: enp8s0
+br1_mtu: 9000
+br1_ip: null
 
 
 ovs_vlans:

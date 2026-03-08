@@ -1,5 +1,18 @@
 ---
 # tasks file for roles/kvm_install
+- name: Install Open vSwitch repository
+  dnf:
+    name:
+      - centos-release-nfv-openvswitch
+    state: present
+
+- name: Install Open vSwitch packages
+  dnf:
+    name:
+      - openvswitch3.5.x86_64
+      - NetworkManager-ovs
+    state: present
+
 - name: Install KVM packages
   dnf:
     name:

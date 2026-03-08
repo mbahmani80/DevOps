@@ -15,13 +15,39 @@
     con-name ovs-if-{{ br0_name }}
     ipv4.method manual
     ipv4.addresses {{ br0_ip }}/{{ br0_prefix }}
-    ipv4.gateway {{ br0_gateway }}
+    ipv4.gateway {{ br0_gw }}
     ipv4.dns {{ br0_dns | join(',') }}
     mtu {{ br0_mtu }}
 
-- name: Attach management NIC
+#Attach Physical Interface to the Bridge
+- name: Create OVS port for the interface 
+  command: >
+    nmcli connection add type ovs-port 
+    conn.interface {{ br0_interface1 }}
+    master {{ br0_name }}
+    con-name ovs-{{ br0_name }}-port-{{ br0_interface1 }}
+
+- name: Attach Physical Interface to the Bridge 
   command: >
     nmcli con add type ethernet
-    conn.interface {{ br0_interface }}
-    master ovs-port-{{ br0_name }}
-    con-name ovs-if-{{ br0_interface }}
+    conn.interface {{ br0_interface1 }}
+    master ovs-{{ br0_name }}-port-{{ br0_interface1 }}
+    con-name ovs-{{ br0_name }}-if-{{ br0_interface1 }} mtu {{ br0_mtu }}
+
+# Apply and Bring Up Connections
+- name: nmcli connection reload 
+  command: nmcli connection reload
+  ignore_errors: yes
+
+- name: nmcli connection up ovs-{{ br0_name }}-if-{{ br0_interface1 }}
+  command: nmcli connection up ovs-{{ br0_name }}-if-{{ br0_interface1 }}
+  ignore_errors: yes
+
+- name: nmcli connection up ovs-if-{{ br0_name }}
+  command: nmcli connection up ovs-if-{{ br0_name }}
+  ignore_errors: yes
+
+# Now remove the old connection safely
+#- name: Remove old NIC connection
+#  command: nmcli connection delete {{ br0_interface1 }}
+#  ignore_errors: yes
