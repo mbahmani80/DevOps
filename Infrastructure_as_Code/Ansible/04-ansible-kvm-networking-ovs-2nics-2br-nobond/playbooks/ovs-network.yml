@@ -1,0 +1,15 @@
+---
+- name: Configure OVS networking for KVM hosts
+  hosts: kvm_hosts
+  become: true
+
+  roles:
+
+    - ovs_packages
+    - ovs_br0
+    - ovs_br1
+    - ovs_vlans
+    - ovs_vlan_interfaces
+    - libvirt_qemu_bridge_access
+    - libvirt_add_br0_to_KVM
+    - libvirt_add_br1_to_KVM

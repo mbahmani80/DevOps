@@ -1,0 +1,6 @@
+---
+# tasks file for roles/ovs_vlans
+- name: Configure trunk VLANs
+  command: >
+    nmcli con modify ovs-port-{{ br1_interface }}
+    ovs-port.trunks {{ ovs_vlans | map(attribute='id') | join(',') }}

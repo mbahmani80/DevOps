@@ -1,0 +1,15 @@
+---
+# tasks file for roles/ovs_br1
+- name: Create storage bridge
+  command: nmcli con add type ovs-bridge conn.interface {{ br1_name }} con-name {{ br1_name }}
+
+- name: Create storage port
+  command: nmcli con add type ovs-port conn.interface {{ br1_interface }} master {{ br1_name }} con-name ovs-port-{{ br1_interface }}
+
+- name: Attach storage NIC
+  command: >
+    nmcli con add type ethernet
+    conn.interface {{ br1_interface }}
+    master ovs-port-{{ br1_interface }}
+    con-name ovs-if-{{ br1_interface }}
+    mtu {{ storage_mtu }}

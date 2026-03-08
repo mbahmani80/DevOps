@@ -1,0 +1,27 @@
+---
+# tasks file for roles/ovs_br0
+- name: Create OVS bridge
+  command: nmcli con add type ovs-bridge conn.interface {{ br0_name }} con-name {{ br0_name }}
+
+- name: Create bridge port
+  command: nmcli con add type ovs-port conn.interface {{ br0_name }} master {{ br0_name }} con-name ovs-port-{{ br0_name }}
+
+- name: Configure bridge interface
+  command: >
+    nmcli con add type ovs-interface
+    slave-type ovs-port
+    conn.interface {{ br0_name }}
+    master ovs-port-{{ br0_name }}
+    con-name ovs-if-{{ br0_name }}
+    ipv4.method manual
+    ipv4.addresses {{ br0_ip }}/{{ br0_prefix }}
+    ipv4.gateway {{ br0_gateway }}
+    ipv4.dns {{ br0_dns | join(',') }}
+    mtu {{ br0_mtu }}
+
+- name: Attach management NIC
+  command: >
+    nmcli con add type ethernet
+    conn.interface {{ br0_interface }}
+    master ovs-port-{{ br0_name }}
+    con-name ovs-if-{{ br0_interface }}

@@ -1,0 +1,27 @@
+---
+# tasks file for roles/libvirt_add_br1_to_KVM
+- name: Create libvirt XML for br1
+  copy:
+    dest: /tmp/br1.xml
+    content: |
+      <network>
+        <name>br1</name>
+        <forward mode='bridge'/>
+        <bridge name='br1'/>
+        <virtualport type='openvswitch'/>
+      </network>
+
+- name: Define br1 network in libvirt
+  command: virsh net-define /tmp/br1.xml
+  register: define_br1
+  failed_when: false
+  changed_when: "'already exists' not in define_br1.stderr"
+
+- name: Start br1 network
+  command: virsh net-start br1
+  register: start_br1
+  failed_when: false
+  changed_when: "'already active' not in start_br1.stderr"
+
+- name: Enable br1 autostart
+  command: virsh net-autostart br1

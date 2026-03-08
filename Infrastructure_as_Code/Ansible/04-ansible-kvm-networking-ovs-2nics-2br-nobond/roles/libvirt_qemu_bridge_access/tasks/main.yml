@@ -1,0 +1,17 @@
+---
+# tasks file for roles/libvirt_qemu_bridge_access
+- name: Ensure qemu config directory exists
+  file:
+    path: /etc/qemu-kvm
+    state: directory
+
+- name: Allow bridge usage
+  copy:
+    dest: /etc/qemu-kvm/bridge.conf
+    content: |
+      allow all
+
+- name: Restart libvirt
+  systemd:
+    name: libvirtd
+    state: restarted

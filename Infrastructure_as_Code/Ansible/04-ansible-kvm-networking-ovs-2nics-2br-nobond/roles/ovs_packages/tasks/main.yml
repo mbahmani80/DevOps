@@ -1,0 +1,14 @@
+---
+# tasks file for roles/ovs_packages
+- name: Install Open vSwitch packages
+  dnf:
+    name:
+      - openvswitch
+      - NetworkManager-ovs
+    state: present
+
+- name: Enable Open vSwitch service
+  systemd:
+    name: openvswitch
+    enabled: true
+    state: started

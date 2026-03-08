@@ -1,0 +1,34 @@
+br0_name: br0
+br0_interface: enp1s0
+br0_prefix: 24
+br0_gateway: 192.168.178.1
+
+br0_dns:
+  - 8.8.8.8
+  - 1.1.1.1
+
+br0_mtu: 1500
+
+
+br1_name: br1
+br1_interface: enp8s0 
+storage_mtu: 1500
+
+
+ovs_vlans:
+
+  - name: vlan151
+    id: 151
+    subnet: 172.28.151
+
+  - name: vlan152
+    id: 152
+    subnet: 172.28.152
+
+  - name: vlan153
+    id: 153
+    subnet: 172.28.153
+
+  - name: vlan154
+    id: 154
+    subnet: 172.28.154
