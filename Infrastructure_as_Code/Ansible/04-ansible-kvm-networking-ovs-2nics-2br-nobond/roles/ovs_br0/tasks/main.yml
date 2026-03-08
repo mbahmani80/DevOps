@@ -48,6 +48,6 @@
   ignore_errors: yes
 
 # Now remove the old connection safely
-#- name: Remove old NIC connection
-#  command: nmcli connection delete {{ br0_interface1 }}
-#  ignore_errors: yes
+- name: Remove old NIC connection
+  command: nmcli connection delete {{ br0_interface1 }}
+  ignore_errors: yes

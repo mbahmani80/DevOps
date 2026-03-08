@@ -1,8 +1,24 @@
 ---
 # tasks file for ovs_cleanup
 
-# Remove bridges
+# Restore a physical NIC to a clean, default IP configuration
+- name: Add NIC with default settings
+  command: >
+    nmcli connection add type ethernet
+    ifname {{ br0_interface1 }}
+    con-name {{ br0_interface1 }}
+    ipv4.method manual
+    ipv4.addresses {{ br0_ip }}/{{ br0_prefix }}
+    ipv4.gateway {{ br0_gw }}
+    ipv4.dns "{{ br0_dns | join(',') }}"
+    connection.autoconnect yes mtu {{ br0_mtu }}
+  ignore_errors: no
 
+# Bring up the NIC
+- name: Bring up the NIC
+  command: nmcli connection up {{ br0_interface1 }}
+
+# Remove bridges
 - name: Remove br0 bridge
   command: nmcli connection delete {{ br0_name }}
   ignore_errors: yes
@@ -41,5 +57,3 @@
   command: nmcli connection delete ovs-if-{{ item.name }}
   loop: "{{ ovs_vlans }}"
   ignore_errors: yes
-
-
