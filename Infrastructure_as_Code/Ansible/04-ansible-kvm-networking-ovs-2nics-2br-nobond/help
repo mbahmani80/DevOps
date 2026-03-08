@@ -49,15 +49,19 @@ all:
 #        kvm03:
 #          ansible_host: 192.168.178.37
 
-$ cat inventories/production/host_vars/kvm01.yml 
+The filename must exactly match the hostname in hosts.yml:
+$ ls inventories/production/host_vars/
+vml-kvm01-rocky.yml  vml-kvm02-rocky.yml  vml-kvm03-rocky.yml
+
+$ cat inventories/production/host_vars/vml-kvm01-rocky.yml
 node_id: 35
 br0_ip: 192.168.178.35
 
-$ cat inventories/production/host_vars/kvm02.yml 
+$ cat inventories/production/host_vars/vml-kvm02-rocky.yml
 node_id: 36
 br0_ip: 192.168.178.36
 
-$ cat inventories/production/host_vars/kvm03.yml 
+$ cat inventories/production/host_vars/vml-kvm03-rocky.yml 
 node_id: 37
 br0_ip: 192.168.178.37
 
