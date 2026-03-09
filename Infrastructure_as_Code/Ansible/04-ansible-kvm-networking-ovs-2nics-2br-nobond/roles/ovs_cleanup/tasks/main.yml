@@ -47,13 +47,13 @@
 # Remove VLAN connections
 # Remove VLAN ports
 - name: Remove VLAN ports
-  command: nmcli connection delete ovs-port-{{ item.name }}
+  command: nmcli connection delete ovs-{{ br1_name }}-port-{{ item.name }}
   loop: "{{ ovs_vlans }}"
   ignore_errors: yes
 
 
 # Remove VLAN interfaces
 - name: Remove VLAN interfaces
-  command: nmcli connection delete ovs-if-{{ item.name }}
+  command: nmcli connection delete ovs-{{ br1_name }}-if-{{ item.name }}
   loop: "{{ ovs_vlans }}"
   ignore_errors: yes

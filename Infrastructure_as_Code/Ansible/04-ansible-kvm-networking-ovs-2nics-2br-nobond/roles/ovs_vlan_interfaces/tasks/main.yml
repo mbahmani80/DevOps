@@ -6,7 +6,7 @@
     conn.interface {{ item.name }}
     master {{ br1_name }}
     ovs-port.tag {{ item.id }}
-    con-name ovs-port-{{ item.name }}
+    con-name ovs-{{ br1_name }}-port-{{ item.name }}
   loop: "{{ ovs_vlans }}"
 
 - name: Create VLAN interfaces
@@ -14,9 +14,9 @@
     nmcli con add type ovs-interface
     slave-type ovs-port
     conn.interface {{ item.name }}
-    master ovs-port-{{ item.name }}
-    con-name ovs-if-{{ item.name }}
+    master ovs-{{ br1_name }}-port-{{ item.name }}
+    con-name ovs-{{ br1_name }}-if-{{ item.name }}
     ipv4.method manual
     ipv4.addresses {{ item.subnet }}.{{ node_id }}/24
-    mtu {{ storage_mtu }}
+    mtu {{ br1_mtu }}
   loop: "{{ ovs_vlans }}"

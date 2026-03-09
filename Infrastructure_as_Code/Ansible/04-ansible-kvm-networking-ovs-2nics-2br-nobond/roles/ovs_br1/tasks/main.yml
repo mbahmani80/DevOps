@@ -1,15 +1,55 @@
 ---
 # tasks file for roles/ovs_br1
-- name: Create storage bridge
+- name: Create  {{ br1_name }} bridge
   command: nmcli con add type ovs-bridge conn.interface {{ br1_name }} con-name {{ br1_name }}
 
-- name: Create storage port
-  command: nmcli con add type ovs-port conn.interface {{ br1_interface }} master {{ br1_name }} con-name ovs-port-{{ br1_interface }}
+- name: Create {{ br1_name }} port
+  command: nmcli con add type ovs-port conn.interface {{ br1_name }} master {{ br1_name }} con-name ovs-port-{{ br1_name }}
 
-- name: Attach storage NIC
+- name: Configure bridge interface
+  command: >
+    nmcli con add type ovs-interface
+    slave-type ovs-port
+    conn.interface {{ br1_name }}
+    master ovs-port-{{ br1_name }}
+    con-name ovs-if-{{ br1_name }}
+    mtu {{ br0_mtu }}
+    ipv4.method manual
+    ipv4.addresses {{ br1_ip }}/{{ br1_prefix }}
+
+#Attach Physical Interface to the Bridge
+- name: Create OVS port for the interface
+  command: >
+    nmcli connection add type ovs-port
+    conn.interface {{ br1_interface1 }}
+    master {{ br1_name }}
+    con-name ovs-{{ br1_name }}-port-{{ br1_interface1 }}
+
+- name: Attach Physical Interface to the Bridge
   command: >
     nmcli con add type ethernet
-    conn.interface {{ br1_interface }}
-    master ovs-port-{{ br1_interface }}
-    con-name ovs-if-{{ br1_interface }}
-    mtu {{ storage_mtu }}
+    conn.interface {{ br1_interface1 }}
+    master ovs-{{ br1_name }}-port-{{ br1_interface1 }}
+    con-name ovs-{{ br1_name }}-if-{{ br1_interface1 }} mtu {{ br1_mtu }}
+
+# Apply and Bring Up Connections
+- name: nmcli connection reload
+  command: nmcli connection reload
+  ignore_errors: yes
+
+- name: nmcli connection up ovs-{{ br1_name }}-if-{{ br1_interface1 }}
+  command: nmcli connection up ovs-{{ br1_name }}-if-{{ br1_interface1 }}
+  ignore_errors: yes
+
+- name: nmcli connection up ovs-port-{{ br1_name }}
+  command: nmcli connection up ovs-port-{{ br1_name }}
+  ignore_errors: yes
+
+- name: nmcli connection up ovs-if-{{ br1_name }}
+  command: nmcli connection up ovs-if-{{ br1_name }}
+  ignore_errors: yes
+
+# Now remove the old connection safely
+- name: Remove old NIC connection
+  command: nmcli connection delete {{ br1_interface1 }}
+  ignore_errors: yes

@@ -13,11 +13,11 @@
     conn.interface {{ br0_name }}
     master ovs-port-{{ br0_name }}
     con-name ovs-if-{{ br0_name }}
+    mtu {{ br0_mtu }}
     ipv4.method manual
     ipv4.addresses {{ br0_ip }}/{{ br0_prefix }}
-    ipv4.gateway {{ br0_gw }}
-    ipv4.dns {{ br0_dns | join(',') }}
-    mtu {{ br0_mtu }}
+   # ipv4.gateway {{ br0_gw }}
+   # ipv4.dns {{ br0_dns | join(',') }}
 
 #Attach Physical Interface to the Bridge
 - name: Create OVS port for the interface 
@@ -41,6 +41,10 @@
 
 - name: nmcli connection up ovs-{{ br0_name }}-if-{{ br0_interface1 }}
   command: nmcli connection up ovs-{{ br0_name }}-if-{{ br0_interface1 }}
+  ignore_errors: yes
+
+- name: nmcli connection up ovs-port-{{ br0_name }}
+  command: nmcli connection up ovs-port-{{ br0_name }}
   ignore_errors: yes
 
 - name: nmcli connection up ovs-if-{{ br0_name }}

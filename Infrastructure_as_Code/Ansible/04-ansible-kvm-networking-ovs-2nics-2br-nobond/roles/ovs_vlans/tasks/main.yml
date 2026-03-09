@@ -2,5 +2,24 @@
 # tasks file for roles/ovs_vlans
 - name: Configure trunk VLANs
   command: >
-    nmcli con modify ovs-port-{{ br1_interface }}
+    nmcli con modify ovs-{{ br1_name }}-port-{{ br1_interface1 }}
     ovs-port.trunks {{ ovs_vlans | map(attribute='id') | join(',') }}
+
+# Apply and Bring Up Connections
+- name: nmcli connection reload
+  command: nmcli connection reload
+  ignore_errors: yes
+
+- name: nmcli connection up ovs-{{ br1_name }}-if-{{ br1_interface1 }}
+  command: nmcli connection up ovs-{{ br1_name }}-if-{{ br1_interface1 }}
+  ignore_errors: yes
+
+- name: nmcli connection up ovs-port-{{ br1_name }}
+  command: nmcli connection up ovs-port-{{ br1_name }}
+  ignore_errors: yes
+
+- name: nmcli connection up ovs-if-{{ br1_name }}
+  command: nmcli connection up ovs-if-{{ br1_name }}
+  ignore_errors: yes
+
+
