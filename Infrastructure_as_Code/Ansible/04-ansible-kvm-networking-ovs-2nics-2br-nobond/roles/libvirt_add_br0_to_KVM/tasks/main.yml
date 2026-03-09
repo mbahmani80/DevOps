@@ -1,22 +1,31 @@
 ---
 # tasks file for roles/libvirt_add_br0_to_KVM
-- name: Create libvirt XML
-  copy:
-    dest: /tmp/br0.xml
-    content: |
-      <network>
-        <name>br0</name>
-        <forward mode='bridge'/>
-        <bridge name='br0'/>
-        <virtualport type='openvswitch'/>
-      </network>
 
-- name: Define network
-  command: virsh net-define /tmp/br0.xml
+- name: Get existing libvirt networks
+  command: virsh net-list --all --name
+  register: libvirt_networks
+  changed_when: false
 
-- name: Start network
-  command: virsh net-start br0
+- block:
 
-- name: Enable autostart
-  command: virsh net-autostart br0
+    - name: Create libvirt XML
+      copy:
+        dest: /tmp/br0.xml
+        content: |
+          <network>
+            <name>br0</name>
+            <forward mode='bridge'/>
+            <bridge name='br0'/>
+            <virtualport type='openvswitch'/>
+          </network>
 
+    - name: Define network
+      command: virsh net-define /tmp/br0.xml
+
+    - name: Start network
+      command: virsh net-start br0
+
+    - name: Enable autostart
+      command: virsh net-autostart br0
+
+  when: "'br0' not in libvirt_networks.stdout_lines"

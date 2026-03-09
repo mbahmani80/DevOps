@@ -1,8 +1,16 @@
 ---
 # tasks file for ovs_cleanup
+# Clean up OVS bridges, ports, and VLANs
+
+# Gather existing nmcli connection
+- name: Gather existing nmcli connections
+  command: nmcli -t -f NAME connection show
+  register: nmcli_connections
+  changed_when: false
 
 # Restore a physical NIC to a clean, default IP configuration
-- name: Add NIC with default settings
+# Only restore NIC if br0 exists
+- name: Add NIC with default settings (if br0 exists)
   command: >
     nmcli connection add type ethernet
     ifname {{ br0_interface1 }}
@@ -12,48 +20,44 @@
     ipv4.gateway {{ br0_gw }}
     ipv4.dns "{{ br0_dns | join(',') }}"
     connection.autoconnect yes mtu {{ br0_mtu }}
-  ignore_errors: no
+  when: br0_name in nmcli_connections.stdout_lines
 
-# Bring up the NIC
-- name: Bring up the NIC
-  command: nmcli connection up {{ br0_interface1 }}
+- name: Bring up NIC (if br0 exists)
+  command: nmcli connection up "{{ br0_interface1 }}"
+  when: br0_name in nmcli_connections.stdout_lines
 
-# Remove bridges
-- name: Remove br0 bridge
-  command: nmcli connection delete {{ br0_name }}
-  ignore_errors: yes
+- name: Set list of base OVS connections to remove
+  set_fact:
+    ovs_base_connections:
+      - "{{ br0_name }}"
+      - "ovs-if-{{ br0_name }}"
+      - "ovs-port-{{ br0_name }}"
+      - "ovs-{{ br0_name }}-port-{{ br0_interface1 }}"
+      - "ovs-{{ br0_name }}-if-{{ br0_interface1 }}"
+      - "{{ br1_name }}"
+      - "ovs-if-{{ br1_name }}"
+      - "ovs-port-{{ br1_name }}"
+      - "ovs-{{ br1_name }}-port-{{ br1_interface1 }}"
+      - "ovs-{{ br1_name }}-if-{{ br1_interface1 }}"
 
-- name: Remove br0 interface
-  command: nmcli connection delete ovs-if-{{ br0_name }} ovs-{{ br0_name }}-if-{{ br0_interface1 }} 
-  ignore_errors: yes
+- name: Remove base OVS connections if present
+  community.general.nmcli:
+    conn_name: "{{ item }}"
+    state: absent
+  loop: "{{ ovs_base_connections }}"
+  when: item in nmcli_connections.stdout_lines
 
-- name: Remove br0 port
-  command: nmcli connection delete ovs-port-{{ br0_name }} ovs-{{ br0_name }}-port-{{ br0_interface1 }}
-  ignore_errors: yes
+- name: Remove VLAN ports if present
+  community.general.nmcli:
+    conn_name: "ovs-{{ br1_name }}-port-{{ item.name }}"
+    state: absent
+  loop: "{{ ovs_vlans | default([]) }}"
+  when: "'ovs-' + br1_name + '-port-' + item.name in nmcli_connections.stdout_lines"
 
+- name: Remove VLAN interfaces if present
+  community.general.nmcli:
+    conn_name: "ovs-{{ br1_name }}-if-{{ item.name }}"
+    state: absent
+  loop: "{{ ovs_vlans | default([]) }}"
+  when: "'ovs-' + br1_name + '-if-' + item.name in nmcli_connections.stdout_lines"
 
-- name: Remove br1 bridge
-  command: nmcli connection delete {{ br1_name }}
-  ignore_errors: yes
-
-- name: Remove br1 interface
-  command: nmcli connection delete ovs-if-{{ br1_name }} ovs-{{ br1_name }}-if-{{ br1_interface1 }}
-  ignore_errors: yes
-
-- name: Remove br1 port
-  command: nmcli connection delete ovs-port-{{ br1_name }} ovs-{{ br1_name }}-port-{{ br1_interface1 }}
-  ignore_errors: yes
-
-# Remove VLAN connections
-# Remove VLAN ports
-- name: Remove VLAN ports
-  command: nmcli connection delete ovs-{{ br1_name }}-port-{{ item.name }}
-  loop: "{{ ovs_vlans }}"
-  ignore_errors: yes
-
-
-# Remove VLAN interfaces
-- name: Remove VLAN interfaces
-  command: nmcli connection delete ovs-{{ br1_name }}-if-{{ item.name }}
-  loop: "{{ ovs_vlans }}"
-  ignore_errors: yes

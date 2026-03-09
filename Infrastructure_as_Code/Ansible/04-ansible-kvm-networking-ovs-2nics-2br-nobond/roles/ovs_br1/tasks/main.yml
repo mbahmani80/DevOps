@@ -50,6 +50,12 @@
   ignore_errors: yes
 
 # Now remove the old connection safely
+# Gather existing nmcli connections
+- name: Get existing nmcli connections
+  command: nmcli -t -f NAME connection show
+  register: nmcli_connections
+  changed_when: false
+
 - name: Remove old NIC connection
   command: nmcli connection delete {{ br1_interface1 }}
-  ignore_errors: yes
+  when: br1_interface1 in nmcli_connections.stdout_lines
