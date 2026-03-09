@@ -1,0 +1,46 @@
+ANSIBLE_CONFIG=ansible.cfg ansible all -i inventories/dev/hosts.yml -m ping -u sysadmin
+
+
+Final Enterprise Project Structure
+
+The project will follow a clean enterprise repository layout.
+
+02-ansible-Linux-Initial-Settings
+│
+├── ansible.cfg
+├── README.md
+├── requirements.yml
+│
+├── inventories
+│   ├── dev
+│   │   ├── hosts.yml
+│   │   └── group_vars
+│   │       └── all.yml
+│   │
+│   ├── stage
+│   └── prod
+│
+├── playbooks
+│   ├── site.yml
+│   ├── redhat.yml
+│   └── debian.yml
+│
+├── roles
+│   ├── repositories
+│   ├── base_packages
+│   ├── hostname
+│   ├── timezone
+│   ├── ssh
+│   ├── firewalld
+│   ├── selinux
+│   ├── networkmanager
+│   ├── cockpit
+│   ├── snap
+│   ├── monitoring_tools
+│   ├── admin_tools
+│   ├── vm_guest_tools
+│   └── gui_workstation
+│
+└── files
+
+

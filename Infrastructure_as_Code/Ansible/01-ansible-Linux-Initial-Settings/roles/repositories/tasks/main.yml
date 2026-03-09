@@ -13,6 +13,7 @@
 - name: Disable Unwanted or Testing Repos
   ansible.builtin.command: dnf config-manager --set-disabled remi-modular epel-testing rpmfusion-*
   when: ansible_os_family == "RedHat"
+  ignore_errors: yes
 
 - name: Backup current sources.list
   ansible.builtin.copy:

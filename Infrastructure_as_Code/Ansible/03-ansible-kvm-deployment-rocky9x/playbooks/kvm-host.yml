@@ -13,3 +13,4 @@
     - iommu
     - nested_kvm
     - kvm_user
+    - libvirt_qemu_bridge_access

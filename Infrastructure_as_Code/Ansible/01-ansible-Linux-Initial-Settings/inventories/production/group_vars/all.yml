@@ -13,12 +13,40 @@ monitoring_packages:
   - iotop
   - iftop
   - lshw
+  - sysstat
+  - dstat
+  - glances
 
 admin_packages:
   - vim
   - nano
   - wget
   - curl
-  - unzip
   - git
   - bash-completion
+  - gpm
+  - screen
+  - wget
+  - zip
+  - unzip
+  - lshw
+  - pv
+  - lsof
+  
+security_network_packages:
+  - fail2ban
+  - openssl
+  - sshguard
+  - tcpdump
+  - net-tools
+  - lldpd
+  - bind-utils
+
+storage_tools_packages:
+   - lvm2
+   - xfsprogs
+   - nfs-utils
+   - rsync
+   - parted
+   - lsscsi
+

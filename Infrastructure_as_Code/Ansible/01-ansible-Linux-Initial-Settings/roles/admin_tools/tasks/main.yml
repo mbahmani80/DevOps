@@ -2,3 +2,14 @@
   package:
     name: "{{ admin_packages }}"
     state: present
+
+- name: Install security and network packages
+  package:
+    name: "{{ security_network_packages }}"
+    state: present
+
+- name: Install storage_tools packages 
+  package:
+    name: "{{ storage_tools_packages }}"
+    state: present
+

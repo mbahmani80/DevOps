@@ -1,0 +1,4 @@
+---
+- import_playbook: redhat.yml
+- import_playbook: debian.yml
+

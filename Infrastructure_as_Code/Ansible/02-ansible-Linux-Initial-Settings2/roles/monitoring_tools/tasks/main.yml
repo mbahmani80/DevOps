@@ -1,0 +1,6 @@
+---
+# tasks file for roles/monitoring_tools
+- name: Install monitoring tools
+  package:
+    name: "{{ monitoring_packages }}"
+    state: present

@@ -1,0 +1,16 @@
+---
+# tasks file for roles/admin_tools
+- name: Install admin packages
+  package:
+    name: "{{ admin_packages }}"
+    state: present
+
+- name: Install security tools
+  package:
+    name: "{{ security_network_packages }}"
+    state: present
+
+- name: Install storage tools
+  package:
+    name: "{{ storage_tools_packages }}"
+    state: present
