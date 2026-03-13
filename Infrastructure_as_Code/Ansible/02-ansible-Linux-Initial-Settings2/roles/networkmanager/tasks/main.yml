@@ -1,2 +1,15 @@
 ---
 # tasks file for roles/networkmanager
+- name: Ensure /root/bin directory exists
+  ansible.builtin.file:
+    path: /root/bin
+    state: directory
+    mode: '0755'
+
+- name: Generate network recovery script for this host
+  ansible.builtin.template:
+    src: net.sh.j2
+    dest: /root/bin/net.sh
+    owner: root
+    group: root
+    mode: '0755'
