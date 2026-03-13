@@ -1,6 +1,74 @@
 ---
 # tasks file for roles/vm_guest_tools
+
+# Install both VMware and QEMU/KVM guest tools
 - name: Install VM Guest Tools packages
   package:
     name: "{{ vm_guest_tools }}"
     state: present
+
+
+- name: Detect system manufacturer
+  ansible.builtin.command: dmidecode -s system-manufacturer
+  register: sys_manufacturer
+  changed_when: false
+
+- name: Set VM type fact
+  ansible.builtin.set_fact:
+    vm_type: >-
+      {% set m = sys_manufacturer.stdout | trim %}
+      {% if 'VMware' in m %}
+        vmware
+      {% elif 'QEMU' in m or 'Red Hat' in m %}
+        kvm
+      {% else %}
+        none
+      {% endif %}
+
+- name: Detect if GUI is installed
+  ansible.builtin.shell: |
+    if rpm -q gdm || rpm -q gnome-shell || dpkg -l gdm3 || dpkg -l ubuntu-desktop; then
+      exit 0
+    else
+      exit 1
+    fi
+  register: gui_installed
+  ignore_errors: yes
+  changed_when: false
+
+- name: Set GUI fact
+  ansible.builtin.set_fact:
+    gui_present: "{{ gui_installed.rc == 0 or install_gui | default(false) }}"
+
+- name: Install VMware guest tools
+  ansible.builtin.package:
+    name:
+      - open-vm-tools
+      - "{{ 'open-vm-tools-desktop' if gui_present else omit }}"
+    state: present
+  when: vm_type | trim == 'vmware'
+
+- name: Ensure VMware vmtoolsd service is running
+  ansible.builtin.service:
+    name: vmtoolsd
+    state: started
+    enabled: true
+  when: vm_type | trim == 'vmware'
+
+- name: Install QEMU/KVM guest agent
+  ansible.builtin.package:
+    name: qemu-guest-agent
+    state: present
+  when: vm_type | trim == 'kvm'
+
+- name: Ensure QEMU guest agent service is running
+  ansible.builtin.service:
+    name: qemu-guest-agent
+    state: started
+    enabled: true
+  when: vm_type | trim == 'kvm'
+
+- name: Notify if no known VM detected
+  ansible.builtin.debug:
+    msg: "No supported VM detected, skipping guest tools installation"
+  when: vm_type | trim == 'none'

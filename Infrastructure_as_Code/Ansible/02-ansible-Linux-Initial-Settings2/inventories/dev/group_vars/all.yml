@@ -22,6 +22,7 @@ base_packages:
 vm_guest_tools:
   - open-vm-tools
   - qemu-guest-agent  
+  - dmidecode
 
 monitoring_packages:
   - htop
