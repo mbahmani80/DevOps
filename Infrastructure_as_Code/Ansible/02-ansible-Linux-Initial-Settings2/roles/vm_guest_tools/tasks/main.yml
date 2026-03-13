@@ -1,2 +1,6 @@
 ---
 # tasks file for roles/vm_guest_tools
+- name: Install VM Guest Tools packages
+  package:
+    name: "{{ vm_guest_tools }}"
+    state: present

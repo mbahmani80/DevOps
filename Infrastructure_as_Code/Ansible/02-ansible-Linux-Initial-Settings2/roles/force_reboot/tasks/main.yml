@@ -1,0 +1,7 @@
+---
+# Force reboot unconditionally
+- name: Force system reboot
+  ansible.builtin.reboot:
+    msg: "Forcing reboot initiated by Ansible"
+    reboot_timeout: 600   # wait up to 10 minutes for reboot
+    test_command: whoami  # optional, checks system is back online

@@ -1,2 +1,9 @@
 ---
 # handlers file for roles/selinux
+# roles/selinux/handlers/main.yml
+- name: reboot_if_required
+  ansible.builtin.reboot:
+    msg: "Reboot required after SELinux configuration change"
+    reboot_timeout: 600
+    test_command: whoami
+  when: selinux_change.changed or selinux_kernel_change is defined and selinux_kernel_change.changed

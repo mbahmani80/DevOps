@@ -1,2 +1,55 @@
 ---
 # tasks file for roles/gui_workstation
+# roles/gui_workstation/tasks/main.yml
+# Tasks to install and configure a full GUI workstation environment on Rocky/RedHat
+
+- name: Install Workstation group (GNOME desktop)
+  ansible.builtin.dnf:
+    name: "@Workstation"
+    state: present
+  become: true
+
+- name: Set default target to graphical (GUI)
+  ansible.builtin.systemd:
+    name: graphical.target
+    enabled: true
+  become: true
+
+- name: Switch to graphical target immediately
+  ansible.builtin.systemd:
+    name: graphical.target
+    state: started
+  become: true
+
+- name: Install additional GUI tools (GNOME Tweaks, Extensions)
+  ansible.builtin.dnf:
+    name:
+      - gnome-tweaks
+      - gnome-extensions-app
+      - gnome-shell-extension-user-theme
+    state: present
+  become: true
+
+- name: Install extra fonts (Roboto, Noto, Fira Code, DejaVu)
+  ansible.builtin.dnf:
+    name:
+      - google-roboto-fonts
+      - google-noto-sans-fonts
+      - fira-code-fonts
+      - dejavu-sans-mono-fonts
+    state: present
+  become: true
+
+- name: Ensure Wayland is disabled in GDM (use X11)
+  ansible.builtin.lineinfile:
+    path: /etc/gdm/custom.conf
+    regexp: '^#?WaylandEnable='
+    line: 'WaylandEnable=false'
+    state: present
+    backrefs: yes
+  become: true
+  notify:
+    - restart gdm
+
+# Optional handler to restart GDM safely
+# This will log out current session if running

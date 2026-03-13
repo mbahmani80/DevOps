@@ -1,2 +1,8 @@
 ---
 # handlers file for roles/gui_workstation
+# roles/gui_workstation/handlers/main.yml
+- name: restart gdm
+  ansible.builtin.systemd:
+    name: gdm
+    state: restarted
+  become: true

@@ -1,5 +1,6 @@
 ANSIBLE_CONFIG=ansible.cfg ansible all -i inventories/dev/hosts.yml -m ping -u sysadmin
-
+ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i inventories/dev/hosts.yml playbooks/redhat-rocky_init.yml -u sysadmin --ask-become-pass
+ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i inventories/dev/hosts.yml playbooks/debian-ubuntu_init.yml -u sysadmin --ask-become-pass
 
 Final Enterprise Project Structure
 

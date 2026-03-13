@@ -1,2 +1,6 @@
 ---
 # tasks file for roles/base_packages
+- name: Install base packages
+  package:
+    name: "{{ base_packages }}"
+    state: present

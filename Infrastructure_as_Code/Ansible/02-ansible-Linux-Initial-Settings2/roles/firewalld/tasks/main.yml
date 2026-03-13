@@ -1,2 +1,55 @@
 ---
 # tasks file for roles/firewalld
+
+- name: Ensure firewalld is installed
+  ansible.builtin.yum:
+    name: firewalld
+    state: present
+  become: true
+
+- name: Ensure firewalld service is enabled and running
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+  become: true
+
+- name: Open SSH port in firewalld
+  ansible.posix.firewalld:
+    service: ssh
+    permanent: true
+    state: enabled
+    immediate: yes
+    zone: public
+  become: true
+
+- name: Open HTTP port in firewalld
+  ansible.posix.firewalld:
+    service: http
+    permanent: true
+    state: enabled
+    immediate: yes
+    zone: public
+  become: true
+
+- name: Open HTTPS port in firewalld
+  ansible.posix.firewalld:
+    service: https
+    permanent: true
+    state: enabled
+    immediate: yes
+    zone: public
+  become: true
+
+- name: Open Cockpit port in firewalld
+  ansible.posix.firewalld:
+    service: cockpit
+    permanent: true
+    state: enabled
+    immediate: yes
+    zone: public
+  become: true
+
+- name: Reload firewalld to apply all changes
+  ansible.builtin.command: firewall-cmd --reload
+  become: true

@@ -1,14 +1,22 @@
 ---
-
 timezone: Europe/Berlin
 
-install_gui: false
+#install_gui: false
+install_gui: true
 
 firewall_services:
   - ssh
   - http
   - https
   - cockpit
+
+base_packages:
+  - dmidecode 
+  - gpm
+
+vm_guest_tools:
+  - open-vm-tools
+  - qemu-guest-agent  
 
 monitoring_packages:
   - htop
@@ -26,7 +34,6 @@ admin_packages:
   - curl
   - git
   - bash-completion
-  - gpm
   - screen
   - zip
   - unzip

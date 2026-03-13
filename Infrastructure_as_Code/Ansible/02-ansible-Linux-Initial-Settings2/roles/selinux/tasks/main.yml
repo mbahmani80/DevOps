@@ -1,2 +1,20 @@
 ---
-# tasks file for roles/selinux
+# tasks file for selinux role
+# roles/selinux/tasks/main.yml
+- name: Check current kernel arguments
+  ansible.builtin.command: grubby --info=ALL
+  register: grubby_info
+  changed_when: false
+
+- name: Add selinux=0 kernel parameter if missing
+  ansible.builtin.command: grubby --update-kernel ALL --args "selinux=0"
+  when: "'selinux=0' not in grubby_info.stdout"
+  register: selinux_kernel_change
+  changed_when: selinux_kernel_change.rc == 0
+  notify: reboot_if_required
+
+- name: Disable SELinux in config
+  ansible.posix.selinux:
+    state: disabled
+  register: selinux_change
+  notify: reboot_if_required

@@ -1,6 +1,6 @@
 ---
-- name: Configure RedHat Systems
-  hosts: rocky_servers
+- name: Configure Debian Systems
+  hosts: debian_servers
   become: true
 
   roles:
@@ -9,8 +9,6 @@
     - hostname
     - timezone
     - ssh
-    - firewalld
-    - selinux
     - networkmanager
     - monitoring_tools
     - admin_tools
@@ -18,3 +16,4 @@
     - snap
     - vm_guest_tools
     - { role: gui_workstation, when: install_gui }
+#    - force_reboot 
