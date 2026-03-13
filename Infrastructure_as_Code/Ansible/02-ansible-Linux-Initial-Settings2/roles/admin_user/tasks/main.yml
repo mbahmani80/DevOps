@@ -1,0 +1,68 @@
+---
+# tasks file for roles/admin_user
+
+# Create admin user
+- name: Ensure admin user exists
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    shell: "{{ admin_shell }}"
+    create_home: true
+    state: present
+
+
+# Add admin user to wheel group on RHEL systems
+- name: Add admin user to wheel group
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    groups: wheel
+    append: yes
+  when: ansible_os_family == "RedHat"
+
+
+# Add admin user to sudo and adm groups on Debian systems
+- name: Add admin user to sudo and adm groups
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    groups:
+      - sudo
+      - adm
+    append: yes
+  when: ansible_os_family == "Debian"
+
+
+# Ensure sudo group permissions in sudoers (Debian)
+- name: Ensure sudo group has sudo privileges
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL:ALL) ALL'
+    validate: 'visudo -cf %s'
+  when: ansible_os_family == "Debian"
+
+
+# Ensure wheel group permissions in sudoers (RHEL)
+- name: Ensure wheel group has sudo privileges
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) ALL'
+    validate: 'visudo -cf %s'
+  when: ansible_os_family == "RedHat"
+
+
+# Allow adm group to use su (Debian)
+- name: Allow adm group to switch to root with su
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/su
+    regexp: '^#?auth.*pam_wheel.so group=adm'
+    line: 'auth required pam_wheel.so group=adm'
+  when: ansible_os_family == "Debian"
+
+
+# Allow wheel group to use su (RHEL)
+- name: Allow wheel group to switch to root
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/su
+    regexp: '^#auth.*pam_wheel.so use_uid'
+    line: 'auth required pam_wheel.so use_uid'
+  when: ansible_os_family == "RedHat"

@@ -12,6 +12,7 @@
     - networkmanager
     - monitoring_tools
     - admin_tools
+    - admin_user
     - cockpit
     - snap
     - vm_guest_tools

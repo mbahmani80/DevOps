@@ -1,8 +1,13 @@
 ---
+# Global Variables
+
+admin_user: sysadmin
+admin_shell: /bin/bash
+
 timezone: Europe/Berlin
 
-#install_gui: false
-install_gui: true
+install_gui: false
+#install_gui: true
 
 firewall_services:
   - ssh

@@ -12,10 +12,11 @@
     - networkmanager
     - monitoring_tools
     - admin_tools
+    - admin_user
     - cockpit
     - snap
     - vm_guest_tools
     - { role: gui_workstation, when: install_gui }
     - firewalld
     - selinux
-    - force_reboot 
+#    - force_reboot 
