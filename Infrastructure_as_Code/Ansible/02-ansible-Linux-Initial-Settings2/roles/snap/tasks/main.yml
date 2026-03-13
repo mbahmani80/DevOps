@@ -1,2 +1,91 @@
 ---
 # tasks file for roles/snap
+# Install Snap only if GUI is present
+
+- name: Detect if GUI is installed
+  ansible.builtin.shell: |
+    if rpm -q gdm || rpm -q gnome-shell || dpkg -l gdm3 || dpkg -l ubuntu-desktop; then
+      exit 0
+    else
+      exit 1
+    fi
+  register: gui_installed
+  ignore_errors: yes
+  changed_when: false
+
+- name: Set GUI fact
+  ansible.builtin.set_fact:
+    gui_present: "{{ gui_installed.rc == 0 or install_gui | default(false) }}"
+
+# -----------------------------
+# Install snapd
+# -----------------------------
+
+- name: Install snapd package
+  ansible.builtin.package:
+    name: snapd
+    state: present
+  when: gui_present
+
+- name: Enable and start snapd socket
+  ansible.builtin.service:
+    name: snapd.socket
+    state: started
+    enabled: true
+  when: gui_present
+
+# -----------------------------
+# Enable classic snap support
+# -----------------------------
+
+- name: Ensure /snap symlink exists
+  ansible.builtin.file:
+    src: /var/lib/snapd/snap
+    dest: /snap
+    state: link
+  when: gui_present
+
+# -----------------------------
+# Fix snap initialization
+# -----------------------------
+
+- name: Restart snapd
+  ansible.builtin.service:
+    name: snapd
+    state: restarted
+  when: gui_present
+
+- name: Wait for snapd initialization
+  ansible.builtin.pause:
+    seconds: 30
+  when: gui_present
+
+- name: Start snapd seeded service
+  ansible.builtin.service:
+    name: snapd.seeded.service
+    state: started
+  when: gui_present
+
+# -----------------------------
+# Install Snap applications
+# -----------------------------
+
+- name: Install snap applications
+  ansible.builtin.command: "snap install {{ item }}"
+  loop: "{{ snap_packages }}"
+  when: gui_present
+  register: snap_install
+  changed_when: "'installed' in snap_install.stdout"
+
+# -----------------------------
+# Configure Asbru permissions
+# -----------------------------
+
+- name: Connect Asbru snap permissions
+  ansible.builtin.command: "snap connect {{ item }}"
+  loop:
+    - asbru:home
+    - asbru:ssh-keys
+  when: gui_present
+  ignore_errors: true
+

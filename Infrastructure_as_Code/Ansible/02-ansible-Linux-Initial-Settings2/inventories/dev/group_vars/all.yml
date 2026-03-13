@@ -62,3 +62,8 @@ storage_tools_packages:
   - rsync
   - parted
   - lsscsi
+
+snap_packages:
+  - simplescreenrecorder
+  - asbru
+

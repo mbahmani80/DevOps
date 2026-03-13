@@ -2,97 +2,51 @@ ANSIBLE_CONFIG=ansible.cfg ansible all -i inventories/dev/hosts.yml -m ping -u s
 ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i inventories/dev/hosts.yml playbooks/redhat-rocky_init.yml -u sysadmin --ask-become-pass
 ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i inventories/dev/hosts.yml playbooks/debian-ubuntu_init.yml -u sysadmin --ask-become-pass
 
-Final Enterprise Project Structure
 
-The project will follow a clean enterprise repository layout.
 
-Adjust the following files:
-
+# Adjust the following files:
 $ cat inventories/dev/hosts.yml 
-
-all:
-
-  children:
-
-    rocky_servers:
-      hosts:
-        rocky9x:
-          ansible_host: 192.168.178.135
-#        rocky01.lab.local:
-#          ansible_host: 192.168.178.135
-#        rocky02.lab.local:
-#          ansible_host: 192.168.178.135
-
-    debian_servers:
-      hosts:
-#        debian01.lab.local:
-#          ansible_host: 192.168.178.135
-#        ubuntu01.lab.local:
-#          ansible_host: 192.168.178.135
-
 $ cat inventories/dev/group_vars/all.yml 
----
-# Global Variables
 
-admin_user: sysadmin
-admin_shell: /bin/bash
-
-timezone: Europe/Berlin
-
-install_gui: false
-#install_gui: true
-
-firewall_services:
-  - ssh
-  - http
-  - https
-  - cockpit
-
-base_packages:
-  - dmidecode 
-  - gpm
-
-vm_guest_tools:
-  - open-vm-tools
-  - qemu-guest-agent  
-
-monitoring_packages:
-  - htop
-  - iotop
-  - iftop
-  - lshw
-  - sysstat
-  - dstat
-  - glances
-
-admin_packages:
-  - vim
-  - nano
-  - wget
-  - curl
-  - git
-  - bash-completion
-  - screen
-  - zip
-  - unzip
-  - pv
-  - lsof
-
-security_network_packages:
-  - fail2ban
-  - openssl
-  - sshguard
-  - tcpdump
-  - net-tools
-  - lldpd
-  - bind-utils
-
-storage_tools_packages:
-  - lvm2
-  - xfsprogs
-  - nfs-utils
-  - rsync
-  - parted
-  - lsscsi
-
+# Final Enterprise Project Structure
+The project will follow a clean enterprise repository layout.
+02-ansible-Linux-Initial-Settings
+│
+├── ansible.cfg
+├── README.md
+├── requirements.yml
+│
+├── inventories
+│   ├── dev
+│   │   ├── hosts.yml
+│   │   └── group_vars
+│   │       └── all.yml
+│   │
+│   ├── stage
+│   └── prod
+│
+├── playbooks
+│   ├── site.yml
+│   ├── redhat-rocky_init.yml
+│   └── debian-ubuntu_init.yml
+│
+├── roles
+│   ├── repositories
+│   ├── base_packages
+│   ├── hostname
+│   ├── timezone
+│   ├── ssh
+│   ├── firewalld
+│   ├── selinux
+│   ├── networkmanager
+│   ├── cockpit
+│   ├── snap
+│   ├── monitoring_tools
+│   ├── admin_tools
+│   ├── admin_user
+│   ├── vm_guest_tools
+│   ├── gui_workstation
+│   └── force_reboot
+│
+└── files
 

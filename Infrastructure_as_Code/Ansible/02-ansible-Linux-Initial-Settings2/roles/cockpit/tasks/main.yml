@@ -2,7 +2,11 @@
 # tasks file for roles/cockpit
 - name: Install cockpit
   package:
-    name: cockpit
+    name: 
+      - cockpit
+      - cockpit-storaged
+      - cockpit-networkmanager 
+      - cockpit-packagekit
     state: present
 
 - name: Enable cockpit

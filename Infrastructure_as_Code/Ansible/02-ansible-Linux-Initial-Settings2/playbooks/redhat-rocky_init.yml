@@ -14,9 +14,9 @@
 #    - admin_tools
 #    - admin_user
 #    - cockpit
-#    - snap
-    - vm_guest_tools
-    - { role: gui_workstation, when: install_gui }
+    - snap
+#    - vm_guest_tools
+#    - { role: gui_workstation, when: install_gui }
 #    - firewalld
  #   - selinux
 #    - force_reboot 
