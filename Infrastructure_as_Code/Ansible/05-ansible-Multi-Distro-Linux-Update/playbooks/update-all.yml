@@ -4,5 +4,5 @@
   become: true
   roles:
     - { role: cleanup_cache, when: enable_cache_cleanup }
-    #- system_update
-    #- { role: reboot_system, when: enable_reboot }
+    - system_update
+    - { role: reboot_system, when: enable_reboot }

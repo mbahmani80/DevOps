@@ -5,5 +5,5 @@ update_retry: 2
 # reporting
 report_updates: true
 # Optional feature toggles
-enable_cache_cleanup: true
-enable_reboot: true # set true to allow automatic reboot 
+enable_cache_cleanup: false 
+enable_reboot: false # set true to allow automatic reboot 
