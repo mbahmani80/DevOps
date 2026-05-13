@@ -1,0 +1,13 @@
+ANSIBLE_CONFIG=ansible.cfg ansible all -i inventories/dev/hosts.yml -m ping -u sysadmin
+
+ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i inventories/dev/hosts.yml playbooks/redhat-rocky_init.yml -u sysadmin --ask-become-pass
+
+
+
+# Adjust the following files:
+$ cat inventories/dev/hosts.yml 
+$ cat inventories/dev/group_vars/all.yml 
+
+# Final Enterprise Project Structure
+The project will follow a clean enterprise repository layout.
+

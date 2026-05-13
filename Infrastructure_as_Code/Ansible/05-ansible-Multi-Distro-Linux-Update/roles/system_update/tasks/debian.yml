@@ -1,0 +1,29 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Upgrade system
+  apt:
+    upgrade: dist
+  register: apt_result
+  retries: "{{ update_retry }}"
+  delay: 10
+  until: apt_result is succeeded
+  ignore_errors: true
+
+- name: Mark failure if upgrade failed
+  set_fact:
+    update_failed: true
+  when: apt_result is failed
+
+# Reboot detection
+- name: Check reboot required file
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_file
+
+- name: Set reboot flag
+  set_fact:
+    reboot_required: "{{ reboot_file.stat.exists }}"
+

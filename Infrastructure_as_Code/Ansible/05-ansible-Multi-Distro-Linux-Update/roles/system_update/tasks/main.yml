@@ -1,0 +1,25 @@
+---
+# tasks file for roles/system_update
+- name: Include Debian tasks
+  include_tasks: debian.yml
+  when: ansible_os_family == "Debian"
+
+
+- name: Include RedHat tasks
+  include_tasks: redhat.yml
+  when: ansible_os_family == "RedHat"
+
+
+- name: Include SUSE tasks
+  include_tasks: suse.yml
+  when: ansible_os_family == "Suse"
+
+
+# Final report per host
+- name: Update result summary
+  debug:
+    msg: |
+      Host: {{ inventory_hostname }}
+      OS: {{ ansible_distribution }}
+      Reboot required: {{ reboot_required | default(false) }}
+      Update failed: {{ update_failed | default(false) }}

@@ -1,0 +1,9 @@
+---
+admin_user: sysadmin
+timezone: Europe/Berlin
+update_retry: 2
+# reporting
+report_updates: true
+# Optional feature toggles
+enable_cache_cleanup: true
+enable_reboot: true # set true to allow automatic reboot 

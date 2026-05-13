@@ -1,0 +1,7 @@
+---
+# tasks file for roles/reboot_system
+- name: Reboot only if required
+  reboot:
+    msg: "Reboot required after updates"
+    reboot_timeout: 600
+  when: reboot_required | default(false)

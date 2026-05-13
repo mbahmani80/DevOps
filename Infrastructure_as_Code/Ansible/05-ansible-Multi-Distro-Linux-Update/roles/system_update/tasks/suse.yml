@@ -1,0 +1,39 @@
+---
+
+- name: Refresh repositories
+  zypper:
+    update_cache: yes
+
+
+
+
+- name: Upgrade system
+  zypper:
+    name: "*"
+    state: latest
+  register: zypper_result
+  ignore_errors: true
+
+
+
+
+- name: Mark update failure
+  set_fact:
+    update_failed: true
+  when: zypper_result is failed
+
+
+
+
+# Reboot detection
+- name: Check reboot-needed flag
+  stat:
+    path: /var/run/reboot-needed
+  register: reboot_file
+
+
+
+
+- name: Set reboot flag
+  set_fact:
+    reboot_required: "{{ reboot_file.stat.exists }}"

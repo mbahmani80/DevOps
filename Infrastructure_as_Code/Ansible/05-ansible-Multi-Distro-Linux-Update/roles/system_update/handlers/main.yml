@@ -1,0 +1,10 @@
+---
+# handlers file for roles/system_update
+- name: Reboot system
+  reboot:
+    msg: "System reboot initiated by Ansible"
+    reboot_timeout: 600
+  when:
+    - reboot_required | default(false)
+    - auto_reboot | bool
+

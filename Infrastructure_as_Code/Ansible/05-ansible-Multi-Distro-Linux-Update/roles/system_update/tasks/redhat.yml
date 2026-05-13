@@ -1,0 +1,42 @@
+---
+
+- name: Update all packages
+  dnf:
+    name: "*"
+    state: latest
+  register: dnf_result
+  ignore_errors: true
+
+
+
+
+- name: Mark update failure
+  set_fact:
+    update_failed: true
+  when: dnf_result is failed
+
+
+
+
+# Install tool
+- name: Ensure dnf-utils installed
+  package:
+    name: dnf-utils
+    state: present
+
+
+
+
+# Check reboot
+- name: Detect reboot requirement
+  command: needs-restarting -r
+  register: reboot_check
+  failed_when: false
+  changed_when: false
+
+
+
+
+- name: Set reboot flag
+  set_fact:
+    reboot_required: "{{ reboot_check.rc != 0 }}"

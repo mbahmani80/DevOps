@@ -1,0 +1,45 @@
+---
+# tasks file for roles/cleanup_cache
+# Clean package cache depending on OS
+# -------------------------
+# Debian / Ubuntu
+# -------------------------
+- name: Clean apt cache
+  apt:
+    autoclean: yes
+    autoremove: yes
+  when: ansible_os_family == "Debian"
+
+- name: Refresh apt metadata
+  apt:
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+
+# -------------------------
+# RedHat / Rocky
+# -------------------------
+- name: Clean dnf cache
+  command: dnf clean all
+  when: ansible_os_family == "RedHat"
+  changed_when: false
+
+- name: Rebuild dnf cache
+  command: dnf makecache
+  when: ansible_os_family == "RedHat"
+  changed_when: false
+
+
+# -------------------------
+# SUSE
+# -------------------------
+- name: Clean zypper cache
+  command: zypper clean --all
+  when: ansible_os_family == "Suse"
+  changed_when: false
+
+- name: Refresh zypper repositories
+  command: zypper refresh
+  when: ansible_os_family == "Suse"
+  changed_when: false
+
