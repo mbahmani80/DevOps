@@ -6,6 +6,10 @@ ANSIBLE_CONFIG=ansible.cfg ansible-playbook \
 playbooks/force-reboot.yml \
 -u sysadmin --ask-become-pass
 
+ANSIBLE_CONFIG=ansible.cfg ansible-playbook \
+-i inventories/dev/hosts.yml \
+playbooks/force-shutdown.yml \
+-u sysadmin --ask-become-pass
 
 # Adjust the following files:
 $ cat inventories/dev/hosts.yml 

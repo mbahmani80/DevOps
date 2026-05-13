@@ -1,0 +1,8 @@
+---
+# tasks file for roles/shutdown_system
+- name: Graceful shutdown
+  ansible.builtin.shell: sleep 5 && shutdown -h now "Shutdown triggered by Ansible"
+  async: 10
+  poll: 0
+
+

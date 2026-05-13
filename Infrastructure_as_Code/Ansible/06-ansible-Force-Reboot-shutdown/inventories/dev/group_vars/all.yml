@@ -2,7 +2,8 @@
 admin_user: sysadmin
 
 # Safety control
-enable_force_reboot: true 
+enable_force_reboot: false 
+enable_shutdown: true
 
 # reboot timeout (seconds)
 reboot_timeout: 600
