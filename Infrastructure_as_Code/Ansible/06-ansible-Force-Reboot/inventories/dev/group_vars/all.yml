@@ -1,0 +1,12 @@
+---
+admin_user: sysadmin
+
+# Safety control
+enable_force_reboot: true 
+
+# reboot timeout (seconds)
+reboot_timeout: 600
+
+# optional message
+reboot_message: "Forced reboot initiated by Ansible"
+

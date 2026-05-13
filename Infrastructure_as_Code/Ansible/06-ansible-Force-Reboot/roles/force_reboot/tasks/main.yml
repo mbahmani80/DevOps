@@ -1,0 +1,8 @@
+---
+# tasks file for roles/force_reboot
+- name: Trigger immediate system reboot
+  ansible.builtin.reboot:
+    msg: "{{ reboot_message }}"
+    reboot_timeout: "{{ reboot_timeout }}"
+    test_command: whoami
+

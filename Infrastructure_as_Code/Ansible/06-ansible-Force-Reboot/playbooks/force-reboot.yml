@@ -1,0 +1,11 @@
+---
+- name: Force Reboot All Systems
+  hosts: all
+  #hosts: rocky_servers     # specific group
+  become: true
+  #serial: 1 #reboot hosts one by one
+  #serial: 2 #reboot 2 hosts at a time
+
+  roles:
+    - { role: force_reboot, when: enable_force_reboot }
+
