@@ -1,0 +1,17 @@
+---
+# tasks file for roles/set_hostname
+- name: Set system hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Ensure hostname is persistent with hostnamectl
+  command: hostnamectl set-hostname {{ inventory_hostname }}
+  changed_when: false
+
+- name: Ensure host entry exists in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: "^{{ ansible_host }}\\s+"
+    line: "{{ ansible_host }} {{ inventory_hostname }} {{ inventory_hostname_short }}"
+    state: present
+    backup: true

@@ -6,3 +6,4 @@
     - { role: cleanup_cache, when: enable_cache_cleanup }
     - system_update
     - { role: reboot_system, when: enable_reboot }
+    - { role: set_hostname, when: enable_hostname }
