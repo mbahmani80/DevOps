@@ -1,4 +1,6 @@
 # 03 - Ansible KVM Deployment Rocky Linux 9
+This GitHub repository is closely aligned with my technical documentation website:
+https://itstorage.net/index.php/devops/ansible/742-ansible-install-kvm
 
 Automated deployment and configuration of Rocky Linux KVM hypervisors using Ansible.
 

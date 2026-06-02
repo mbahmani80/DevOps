@@ -1,4 +1,6 @@
 # 04-ansible-kvm-networking-ovs-2nics-2br-nobond
+This GitHub repository is closely aligned with my technical documentation website:
+https://itstorage.net/index.php/devops/ansible/743-ansible-deploy-net-kvm-2nics-2br-nobond
 
 You can copy/paste it directly into your repo:
 

@@ -1,0 +1,67 @@
+ovs_bridges:
+
+  br0:
+    enabled: true
+    mtu: 1500
+
+    br0bond0:
+      mode: active-backup
+      uplinks:
+        - enp1s0
+        - enp2s0
+
+    ip:
+      subnet: 192.168.178
+      prefix: 24
+      gateway: 192.168.178.1
+
+      dns:
+        - 8.8.8.8
+        - 1.1.1.1
+
+
+  br1:
+    enabled: true
+    mtu: 9000
+
+    bond:
+      enabled: true
+      name: br1bond1
+      mode: lacp
+
+      uplinks:
+        - enp3s0
+        - enp4s0
+
+      trunks:
+        - 151
+        - 152
+        - 153
+
+    vlans:
+
+      - id: 151
+        name: vlan151
+        subnet: 172.28.151
+
+      - id: 152
+        name: vlan152
+        subnet: 172.28.152
+
+      - id: 153
+        name: vlan153
+        subnet: 172.28.153
+
+
+  br2:
+    enabled: false
+    mtu: 9000
+
+    bond:
+      enabled: true
+      name: br2bond1
+      mode: balance-slb
+
+      uplinks:
+        - enp5s0
+        - enp6s0

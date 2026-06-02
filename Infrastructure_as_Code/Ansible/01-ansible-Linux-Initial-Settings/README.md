@@ -1,4 +1,6 @@
 # 01 - Ansible Linux Initial Settings
+This GitHub repository is closely aligned with my technical documentation website:
+https://itstorage.net/index.php/devops/ansible/740-ansible-enterprise
 
 Ansible-based initial Linux server configuration and provisioning framework.
 

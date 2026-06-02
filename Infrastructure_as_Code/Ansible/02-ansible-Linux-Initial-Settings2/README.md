@@ -1,4 +1,6 @@
 # 02 - Ansible Linux Initial Settings v2
+This GitHub repository is closely aligned with my technical documentation website:
+https://itstorage.net/index.php/devops/ansible/741-ansible-enterprise-galaxy
 
 Enterprise-style Linux server provisioning and standardization using Ansible.
 

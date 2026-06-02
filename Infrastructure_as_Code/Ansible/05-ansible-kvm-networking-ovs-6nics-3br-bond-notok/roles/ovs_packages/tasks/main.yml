@@ -1,0 +1,20 @@
+---
+# tasks file for roles/ovs_packages
+- name: Install Open vSwitch repository
+  dnf:
+    name:
+      - centos-release-nfv-openvswitch
+    state: present
+
+- name: Install Open vSwitch packages
+  dnf:
+    name:
+      - openvswitch3.5.x86_64
+      - NetworkManager-ovs
+    state: present
+
+- name: Enable Open vSwitch service
+  systemd:
+    name: openvswitch
+    enabled: true
+    state: started

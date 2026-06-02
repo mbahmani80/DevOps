@@ -1,0 +1,83 @@
+---
+# tasks file for roles/ovs_br0
+
+# enp1s0 ─┐
+#         ├── br0bond0 (active-backup)
+# enp2s0 ─┘
+#                  ↓
+#            br0 (OVS bridge)
+#                  ↓
+#        Management IP (192.168.178.x)
+
+- name: Configure br0 stack
+  block:
+
+    # 1. Create OVS bridge
+    - name: Create OVS bridge br0 
+      community.general.nmcli:
+        conn_name: br0
+        type: ovs-bridge
+        ifname: br0
+        mtu: "{{ ovs_bridges.br0.mtu }}"
+        state: present
+    
+    # 2. Create OVS bond (active-backup)
+    - name: Create OVS Active-Backup bond for br0
+      community.general.nmcli:
+        conn_name: br0bond0
+        type: ovs-bond
+        ifname: br0bond0
+        master: br0
+        #mode: active-backup
+        mode: "{{ ovs_bridges.br0.br0bond0.mode }}"
+        state: present
+    
+    # 3. Attach physical uplinks
+    #Attach Physical Interface to the Bond
+    - name: Attach uplinks to bond
+      community.general.nmcli:
+        conn_name: "{{ item }}-br0bond0"
+        type: ovs-interface
+        ifname: "{{ item }}"
+        master: br0bond0
+        state: present
+      loop: "{{ ovs_bridges.br0.br0bond0.uplinks }}"
+    
+    #- name: Attach enp1s0 to br0bond0
+    #  community.general.nmcli:
+    #    conn_name: enp1s0-br0bond0
+    #    type: ovs-interface
+    #    ifname: "{{ br0_interface1 }}"
+    #    master: br0bond0
+    #    state: present
+    
+    #- name: Attach enp2s0 to br0bond0
+    #  community.general.nmcli:
+    #    conn_name: enp2s0-br0bond0
+    #    type: ovs-interface
+    #    ifname: "{{ br0_interface2 }}"
+    #    master: br0bond0
+    #    state: present
+    
+    # 4. Assign IP ONLY to br0
+    - name: Configure IP on br0
+      community.general.nmcli:
+        conn_name: br0
+        ifname: br0
+        type: ovs-bridge
+        ipv4.method: manual
+        ipv4.addresses: "{{ ovs_bridges.br0.ip.subnet }}.{{ node_id }}/{{ ovs_bridges.br0.ip.prefix }}"
+        ipv4.gateway: "{{ ovs_bridges.br0.ip.gateway }}"
+        ipv4.dns: "{{ ovs_bridges.br0.ip.dns | join(',') }}"
+        state: present
+    
+    # 5. Verify OVS bridge status
+    - name: Verify OVS bridge status
+      command: ovs-vsctl show
+      register: ovs_status
+      changed_when: false
+    
+    - debug:
+        var: ovs_status.stdout
+
+  when: ovs_bridges.br0.enabled | bool
