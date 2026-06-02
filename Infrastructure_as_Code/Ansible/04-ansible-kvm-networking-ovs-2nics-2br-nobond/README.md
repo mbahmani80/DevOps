@@ -84,7 +84,7 @@ Each VLAN gets:
 
 ---
 
-## 📌 Inventory Structure
+## Inventory Structure
 
 ### Hosts
 
@@ -144,7 +144,7 @@ Used for:
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 ### 1. Ping hosts
 
@@ -178,7 +178,7 @@ ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i inventories/production/hosts.yml 
 
 ---
 
-## 🧩 Roles Overview
+## Roles Overview
 
 ### 🔹 ovs_packages
 
@@ -228,7 +228,7 @@ Integrates OVS bridges into libvirt networking:
 
 ---
 
-### 🔹 ovs_cleanup
+### ovs_cleanup
 
 Removes:
 
@@ -239,7 +239,7 @@ Removes:
 
 ---
 
-## 🧠 Design Notes
+## Design Notes
 
 * Uses **NetworkManager CLI (nmcli)** for OVS provisioning
 * VLANs are dynamically generated from `ovs_vlans`
@@ -249,7 +249,7 @@ Removes:
 
 ---
 
-## ⚠️ Requirements
+## Requirements
 
 * Rocky Linux / RHEL 9
 * NetworkManager enabled
@@ -267,7 +267,7 @@ ansible-galaxy collection install -r requirements.yml
 
 ---
 
-## 🧯 Notes
+## Notes
 
 * Ensure correct NIC names before deployment (`ens224`, `ens256`, etc.)
 * Running OVS tasks may disrupt network connectivity
@@ -276,7 +276,7 @@ ansible-galaxy collection install -r requirements.yml
 
 ---
 
-## 📌 Author Notes
+## Author Notes
 
 This project is part of a KVM automation stack focusing on:
 
