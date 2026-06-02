@@ -287,11 +287,4 @@ This project is part of a KVM automation stack focusing on:
 
 ```
 
----
-
-If you want next step, I can also:
-- :contentReference[oaicite:0]{index=0}
-- or :contentReference[oaicite:1]{index=1}
-- or :contentReference[oaicite:2]{index=2}
-```
 
