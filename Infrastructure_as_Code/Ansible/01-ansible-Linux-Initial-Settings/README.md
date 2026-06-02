@@ -241,53 +241,6 @@ This allows easy customization across all managed systems.
 
 ---
 
-## Playbooks
-
-### Rocky Linux / Enterprise Linux
-
-```bash
-ansible-playbook \
--i inventories/production/hosts.yml \
-playbooks/redhat-rocky_init.yml \
--u sysadmin \
---ask-become-pass
-```
-
----
-
-### Debian / Ubuntu
-
-```bash
-ansible-playbook \
--i inventories/production/hosts.yml \
-playbooks/debian-ubuntu_init.yml \
--u sysadmin \
---ask-become-pass
-```
-
----
-
-## Connectivity Testing
-
-Verify communication before deployment:
-
-```bash
-ansible all \
--i inventories/production/hosts.yml \
--m ping \
--u sysadmin
-```
-
-Expected result:
-
-```text
-SUCCESS => {
-    "ping": "pong"
-}
-```
-
----
-
 ## SSH Preparation
 
 Deploy SSH key to managed hosts:
@@ -317,6 +270,57 @@ roles_path = roles
 host_key_checking = False
 retry_files_enabled = False
 stdout_callback = yaml
+```
+
+---
+
+## Connectivity Testing
+
+Verify communication before deployment:
+
+```bash
+ANSIBLE_CONFIG=ansible.cfg ansible all \ 
+-i inventories/production/hosts.yml \ 
+-m ping \ 
+-u sysadmin
+```
+
+Expected result:
+
+```text
+SUCCESS => {
+    "ping": "pong"
+}
+```
+
+---
+
+## Playbooks
+
+### Rocky Linux / Enterprise Linux
+
+```bash
+ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i inventories/production/hosts.yml playbooks/redhat-rocky_init.yml -u sysadmin --ask-become-pass
+
+ansible-playbook \
+-i inventories/production/hosts.yml \
+playbooks/redhat-rocky_init.yml \
+-u sysadmin \
+--ask-become-pass
+
+```
+
+---
+
+### Debian / Ubuntu
+
+```bash
+ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i inventories/production/hosts.yml playbooks/debian-ubuntu_init.yml -u sysadmin --ask-become-pass
+ansible-playbook \
+-i inventories/production/hosts.yml \
+playbooks/debian-ubuntu_init.yml \
+-u sysadmin \
+--ask-become-pass
 ```
 
 ---
