@@ -1,10 +1,9 @@
-Here is a clean, professional `README.md` for your **04-ansible-kvm-networking-ovs-2nics-2br-nobond** project.
+# 04-ansible-kvm-networking-ovs-2nics-2br-nobond
 
 You can copy/paste it directly into your repo:
 
 ---
 
-```markdown
 # Ansible KVM Networking: OVS (2 NICs, 2 Bridges, VLAN Support)
 
 This project automates **Open vSwitch (OVS) networking configuration** for KVM hypervisor hosts using Ansible.
@@ -18,9 +17,9 @@ It provisions:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
-```
+```text
 
 04-ansible-kvm-networking-ovs-2nics-2br-nobond
 │
@@ -54,20 +53,20 @@ It provisions:
 
 ---
 
-## ⚙️ Overview
+## Overview
 
 This setup builds a **dual-network KVM host architecture**:
 
 ### Bridge Layout
 
-| Bridge | Purpose      | NIC        | Notes |
-|--------|-------------|------------|------|
-| br0    | Management  | enp1s0/ens224 | Host management + libvirt |
-| br1    | Storage / Data | enp8s0/ens256 | VLAN trunking |
+| Bridge | Purpose        | NIC           | Notes                     |
+|--------|----------------|---------------|---------------------------|
+| br0    | Management     | enp1s0/ens224 | Host management + libvirt |
+| br1    | Storage / Data | enp8s0/ens256 | VLAN trunking             |
 
 ---
 
-## 🌐 VLAN Design
+## VLAN Design
 
 The system supports multiple VLAN networks over br1:
 
@@ -284,7 +283,3 @@ This project is part of a KVM automation stack focusing on:
 * Hypervisor provisioning
 * Networking abstraction
 * VLAN-based multi-tenant lab design
-
-```
-
-
