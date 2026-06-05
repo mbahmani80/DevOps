@@ -1,0 +1,108 @@
+---
+# tasks file for roles/ovs_br0
+
+# roles/ovs_br0/tasks/main.yml
+
+# Topology
+#
+# enp1s0 ----\
+#             \__ br0bond0 (OVS Port / bond)
+# enp2s0 ----/
+#
+#          |
+#         br0 (OVS Bridge)
+#          |
+#     Management IP
+
+- name: Configure br0 stack
+  block:
+
+    #####################################################################
+    # Create OVS bridge
+    #####################################################################
+
+    - name: Create OVS bridge br0
+      community.general.nmcli:
+        conn_name: br0
+        ifname: br0
+        type: ovs-bridge
+        mtu: "{{ ovs_bridges.br0.mtu }}"
+        state: present
+
+    #####################################################################
+    # Create OVS bond port
+    #####################################################################
+
+    - name: Create OVS port br0bond0
+      community.general.nmcli:
+        conn_name: br0bond0
+        ifname: br0bond0
+        type: ovs-port
+        master: br0
+        state: present
+
+    #####################################################################
+    # Attach physical interfaces
+    #####################################################################
+
+    - name: Attach uplinks to br0bond0
+      community.general.nmcli:
+        conn_name: "{{ item }}-br0bond0"
+        ifname: "{{ item }}"
+        type: ovs-interface
+        master: br0bond0
+        state: present
+      loop: "{{ ovs_bridges.br0.br0bond0.uplinks }}"
+
+    #####################################################################
+    # Configure OVS bond mode
+    #####################################################################
+
+    - name: Configure OVS bond mode
+      command: >
+        ovs-vsctl set port br0bond0
+        bond_mode={{ ovs_bridges.br0.br0bond0.mode }}
+      register: bond_mode_result
+      changed_when: false
+      failed_when: false
+
+    #####################################################################
+    # Configure bridge IP
+    #####################################################################
+
+    - name: Configure management IP on br0
+      community.general.nmcli:
+        conn_name: br0
+        ifname: br0
+        type: ovs-bridge
+        ipv4.addresses: "{{ br0_ip }}/24"
+        gw4: "{{ ovs_bridges.br0.ip.gateway }}"
+        dns4: "{{ ovs_bridges.br0.ip.dns }}"
+        method4: manual
+        method6: disabled
+        state: present
+
+    #####################################################################
+    # Bring bridge up
+    #####################################################################
+
+    - name: Activate br0
+      command: nmcli connection up br0
+      register: br0_up
+      changed_when: "'successfully' in br0_up.stdout | lower"
+      failed_when: false
+
+    #####################################################################
+    # Verify OVS configuration
+    #####################################################################
+
+    - name: Show OVS configuration
+      command: ovs-vsctl show
+      register: ovs_status
+      changed_when: false
+
+    - name: Display OVS configuration
+      debug:
+        var: ovs_status.stdout_lines
+
+  when: ovs_bridges.br0.enabled | bool

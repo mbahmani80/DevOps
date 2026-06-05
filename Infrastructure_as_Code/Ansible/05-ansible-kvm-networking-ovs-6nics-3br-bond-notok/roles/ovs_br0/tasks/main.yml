@@ -1,83 +1,79 @@
 ---
 # tasks file for roles/ovs_br0
 
-# enp1s0 ─┐
-#         ├── br0bond0 (active-backup)
-# enp2s0 ─┘
-#                  ↓
-#            br0 (OVS bridge)
-#                  ↓
-#        Management IP (192.168.178.x)
+# roles/ovs_br0/tasks/main.yml
+
+# Topology
+#
+# enp1s0 ----\
+#             \__ br0bond0 (OVS Port / bond)
+# enp2s0 ----/
+#
+#          |
+#         br0 (OVS Bridge)
+#          |
+#     Management IP
 
 - name: Configure br0 stack
   block:
 
-    # 1. Create OVS bridge
-    - name: Create OVS bridge br0 
+    - name: Create OVS bridge br0
+      community.general.nmcli:
+        conn_name: br0
+        ifname: br0
+        type: ovs-bridge
+        state: present
+    
+    - name: Adding bridge port for br0
+      community.general.nmcli:
+        conn_name: ovs-port-br0
+        ifname: br0
+        type: ovs-port
+        master: br0
+        state: present
+
+    - name: Configure management IP on br0
       community.general.nmcli:
         conn_name: br0
         type: ovs-bridge
-        ifname: br0
+        ip4: "{{ br0_ip }}/24"
+        gw4: "{{ ovs_bridges.br0.ip.gateway }}"
+        dns4: "{{ ovs_bridges.br0.ip.dns }}"
         mtu: "{{ ovs_bridges.br0.mtu }}"
         state: present
+        autoconnect: true
+ 
+    - name: Creating OVS bond port br0bond0
+      ansible.builtin.command: "nmcli connection add type ovs-port conn.interface br0bond0 master br0 con-name ovs-port-br0bond0"
+      #ansible.builtin.command: "nmcli connection modify br0bond0 ovs-port.bond-mode {{ ovs_bridges.br0.br0bond0.mode }}"
+      changed_when: false # nmcli doesn't track current state easily, so we skip reporting change if already set
     
-    # 2. Create OVS bond (active-backup)
-    - name: Create OVS Active-Backup bond for br0
-      community.general.nmcli:
-        conn_name: br0bond0
-        type: ovs-bond
-        ifname: br0bond0
-        master: br0
-        #mode: active-backup
-        mode: "{{ ovs_bridges.br0.br0bond0.mode }}"
-        state: present
-    
-    # 3. Attach physical uplinks
-    #Attach Physical Interface to the Bond
-    - name: Attach uplinks to bond
-      community.general.nmcli:
-        conn_name: "{{ item }}-br0bond0"
-        type: ovs-interface
-        ifname: "{{ item }}"
-        master: br0bond0
-        state: present
+    - name: Attach physical interfaces to bond
+      ansible.builtin.command: >
+        nmcli connection add type ethernet
+        conn.interface "{{ item }}"
+        master ovs-port-br0bond0
+        con-name "ovs-br0-if-{{ item }}"
+        mtu "{{ ovs_bridges.br0.mtu }}"
       loop: "{{ ovs_bridges.br0.br0bond0.uplinks }}"
-    
-    #- name: Attach enp1s0 to br0bond0
-    #  community.general.nmcli:
-    #    conn_name: enp1s0-br0bond0
-    #    type: ovs-interface
-    #    ifname: "{{ br0_interface1 }}"
-    #    master: br0bond0
-    #    state: present
-    
-    #- name: Attach enp2s0 to br0bond0
-    #  community.general.nmcli:
-    #    conn_name: enp2s0-br0bond0
-    #    type: ovs-interface
-    #    ifname: "{{ br0_interface2 }}"
-    #    master: br0bond0
-    #    state: present
-    
-    # 4. Assign IP ONLY to br0
-    - name: Configure IP on br0
-      community.general.nmcli:
-        conn_name: br0
-        ifname: br0
-        type: ovs-bridge
-        ipv4.method: manual
-        ipv4.addresses: "{{ ovs_bridges.br0.ip.subnet }}.{{ node_id }}/{{ ovs_bridges.br0.ip.prefix }}"
-        ipv4.gateway: "{{ ovs_bridges.br0.ip.gateway }}"
-        ipv4.dns: "{{ ovs_bridges.br0.ip.dns | join(',') }}"
-        state: present
-    
-    # 5. Verify OVS bridge status
-    - name: Verify OVS bridge status
-      command: ovs-vsctl show
-      register: ovs_status
-      changed_when: false
-    
-    - debug:
-        var: ovs_status.stdout
 
+
+Configuring bond monitoring and mode
+ 
+#    
+#    - name: Apply specific OVS configurations (miimon/hash)
+#      ansible.builtin.command: "ovs-vsctl set port br0bond0 other_config:{{ item.key }}={{ item.value }}"
+#      loop: "{{ ovs_extra_config | dict2items }}"
+#      register: ovs_cmd
+#      changed_when: "'added' in ovs_cmd.stdout or 'changed' in ovs_cmd.stdout"
+#      failed_when: false
+#    
+#    - name: Ensure services are enabled and started
+#      ansible.builtin.service:
+#        name: "{{ item }}"
+#        enabled: true
+#        state: started
+#      loop:
+#        - cockpit.socket
+#    
   when: ovs_bridges.br0.enabled | bool

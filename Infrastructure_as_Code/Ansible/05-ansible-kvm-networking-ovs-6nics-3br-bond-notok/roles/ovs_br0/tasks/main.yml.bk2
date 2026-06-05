@@ -1,0 +1,73 @@
+---
+# tasks file for roles/ovs_br0
+
+# roles/ovs_br0/tasks/main.yml
+
+# Topology
+#
+# enp1s0 ----\
+#             \__ br0bond0 (OVS Port / bond)
+# enp2s0 ----/
+#
+#          |
+#         br0 (OVS Bridge)
+#          |
+#     Management IP
+
+- name: Configure br0 stack
+  block:
+
+    - name: Create OVS bridge br0
+      community.general.nmcli:
+        conn_name: br0
+        ifname: br0
+        type: ovs-bridge
+        state: present
+    
+    - name: Create OVS bond port br0bond0
+      community.general.nmcli:
+        conn_name: br0bond0
+        ifname: br0bond0
+        type: ovs-port
+        master: br0
+        state: present
+    
+    - name: Configure OVS bond mode
+      ansible.builtin.command: "nmcli connection modify br0bond0 ovs-port.bond-mode {{ ovs_bridges.br0.br0bond0.mode }}"
+      changed_when: false # nmcli doesn't track current state easily, so we skip reporting change if already set
+    
+    - name: Attach physical interfaces to bond
+      community.general.nmcli:
+        conn_name: "ovs-slave-{{ item }}"
+        ifname: "{{ item }}"
+        type: ethernet
+        master: br0bond0
+        state: present
+      loop: "{{ ovs_uplinks }}"
+    
+    - name: Configure management IP on br0
+      community.general.nmcli:
+        conn_name: br0
+        type: ovs-bridge
+        ipv4.addresses: "{{ br0_ip }}/{{ br0_prefix }}"
+        ipv4.gateway: "{{ br0_gateway }}"
+        ipv4.dns: "{{ br0_dns | join(',') }}"
+        ipv4.method: manual
+        state: present
+    
+    - name: Apply specific OVS configurations (miimon/hash)
+      ansible.builtin.command: "ovs-vsctl set port br0bond0 other_config:{{ item.key }}={{ item.value }}"
+      loop: "{{ ovs_extra_config | dict2items }}"
+      register: ovs_cmd
+      changed_when: "'added' in ovs_cmd.stdout or 'changed' in ovs_cmd.stdout"
+      failed_when: false
+    
+    - name: Ensure services are enabled and started
+      ansible.builtin.service:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop:
+        - cockpit.socket
+    
+  when: ovs_bridges.br0.enabled | bool

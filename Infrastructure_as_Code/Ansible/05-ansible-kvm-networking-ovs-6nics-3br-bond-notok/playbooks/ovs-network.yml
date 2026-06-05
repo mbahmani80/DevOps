@@ -5,8 +5,8 @@
   gather_facts: no
 
   roles:
-    - ovs_cleanup
-    - ovs_packages
+#    - ovs_cleanup
+#    - ovs_packages
     - ovs_br0
 #    - ovs_br1
 #    - ovs_br2

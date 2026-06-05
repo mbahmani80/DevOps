@@ -7,13 +7,13 @@ ovs_bridges:
     br0bond0:
       mode: active-backup
       uplinks:
-        - enp1s0
-        - enp2s0
+        - ens160
+        - ens193
 
     ip:
-      subnet: 192.168.178
+      subnet: 192.168.100
       prefix: 24
-      gateway: 192.168.178.1
+      gateway: 192.168.100.1
 
       dns:
         - 8.8.8.8
