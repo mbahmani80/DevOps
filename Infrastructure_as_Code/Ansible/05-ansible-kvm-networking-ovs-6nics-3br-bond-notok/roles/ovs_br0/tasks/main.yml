@@ -58,22 +58,32 @@
       loop: "{{ ovs_bridges.br0.br0bond0.uplinks }}"
 
 
-Configuring bond monitoring and mode
+      #Configuring bond monitoring and mode
+    - name: Configure bond mode (active-backup, balance-slb, or balance-tcp)
+      ansible.builtin.command:
+        cmd: >
+          nmcli con modify ovs-port-br0bond0
+          ovs-port.bond-mode {{ ovs_bridges.br0.br0bond0.mode }}
+
+    - name: If bond mode is balance-tcp then 802.3ad active
+      ansible.builtin.command: 
+        cmd: >
+          nmcli con modify ovs-port-br0bond0 ovs-port.lacp active
+      when: ovs_bridges.br0.br0bond0.mode == 'balance-tcp'
  
-#    
-#    - name: Apply specific OVS configurations (miimon/hash)
-#      ansible.builtin.command: "ovs-vsctl set port br0bond0 other_config:{{ item.key }}={{ item.value }}"
-#      loop: "{{ ovs_extra_config | dict2items }}"
-#      register: ovs_cmd
-#      changed_when: "'added' in ovs_cmd.stdout or 'changed' in ovs_cmd.stdout"
-#      failed_when: false
-#    
-#    - name: Ensure services are enabled and started
-#      ansible.builtin.service:
-#        name: "{{ item }}"
-#        enabled: true
-#        state: started
-#      loop:
-#        - cockpit.socket
-#    
+     # Bring up bridge and bonds
+    - name: Reload NetworkManager connections
+      ansible.builtin.command:
+        cmd: nmcli con reload
+    
+    - name: Bring up OVS connections
+      ansible.builtin.command:
+        cmd: "nmcli con up {{ item }}"
+      loop:
+        - "ovs-port-br0bond0"
+        - "ovs-br0-if-{{ ovs_bridges.br0.br0bond0.uplinks[0] }}"
+        - "ovs-br0-if-{{ ovs_bridges.br0.br0bond0.uplinks[1] }}"
+        - "ovs-port-br0"
+        - "ovs-if-br0"
+
   when: ovs_bridges.br0.enabled | bool
