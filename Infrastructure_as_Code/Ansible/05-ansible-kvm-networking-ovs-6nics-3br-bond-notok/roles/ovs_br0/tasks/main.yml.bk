@@ -5,104 +5,103 @@
 
 # Topology
 #
-# enp1s0 ----\
+# ens160 ----\
 #             \__ br0bond0 (OVS Port / bond)
-# enp2s0 ----/
-#
-#          |
-#         br0 (OVS Bridge)
-#          |
-#     Management IP
+#             /     |
+# ens193 ----/      |
+#                   |
+#                   |
+#            ovs-bridge (br0)
+#             └─ ovs-port
+#                 └─ ovs-interface
+#                          |
+#                      Management IP
 
 - name: Configure br0 stack
   block:
-
-    #####################################################################
-    # Create OVS bridge
-    #####################################################################
-
-    - name: Create OVS bridge br0
+    # nmcli con add type ovs-bridge conn.interface br0 con-name br0
+    - name: Create OVS Bridge br0
       community.general.nmcli:
         conn_name: br0
         ifname: br0
         type: ovs-bridge
-        mtu: "{{ ovs_bridges.br0.mtu }}"
         state: present
+        autoconnect: true
 
-    #####################################################################
-    # Create OVS bond port
-    #####################################################################
+    # Change MTU on the physical NICs: ip link set ens160 mtu 1500 & ip link set ens193 mtu 1500
+    - name: Change MTU on the "{{ ovs_bridges.br0.br0bond0.uplinks[0] }}"
+      ansible.builtin.command: "ip link set ovs-br0-if-{{ ovs_bridges.br0.br0bond0.uplinks[0] }} mtu {{ ovs_bridges.br0.mtu }}"
+    - name: Change MTU on the "{{ ovs_bridges.br0.br0bond0.uplinks[1] }}"
+      ansible.builtin.command: "ip link set ovs-br0-if-{{ ovs_bridges.br0.br0bond0.uplinks[1] }} mtu {{ ovs_bridges.br0.mtu }}"
 
-    - name: Create OVS port br0bond0
+    # nmcli con add type ovs-port conn.interface ovs-port-br0 master br0 con-name ovs-port-br0
+    - name: Create internal OVS port for br0
       community.general.nmcli:
-        conn_name: br0bond0
-        ifname: br0bond0
+        conn_name: ovs-port-br0
+        #ifname: br0
+        ifname: ovs-port-br0
         type: ovs-port
         master: br0
         state: present
+        autoconnect: true
 
-    #####################################################################
-    # Attach physical interfaces
-    #####################################################################
-
-    - name: Attach uplinks to br0bond0
-      community.general.nmcli:
-        conn_name: "{{ item }}-br0bond0"
-        ifname: "{{ item }}"
-        type: ovs-interface
-        master: br0bond0
-        state: present
-      loop: "{{ ovs_bridges.br0.br0bond0.uplinks }}"
-
-    #####################################################################
-    # Configure OVS bond mode
-    #####################################################################
-
-    - name: Configure OVS bond mode
-      command: >
-        ovs-vsctl set port br0bond0
-        bond_mode={{ ovs_bridges.br0.br0bond0.mode }}
-      register: bond_mode_result
-      changed_when: false
-      failed_when: false
-
-    #####################################################################
-    # Configure bridge IP
-    #####################################################################
-
+    # nmcli con add type ovs-interface slave-type ovs-port conn.interface br0 master ovs-port-br0 con-name ovs-if-br0 ipv4.method manual ipv4.addresses "192.168.178.41/24" mtu 1500
     - name: Configure management IP on br0
       community.general.nmcli:
-        conn_name: br0
+        conn_name: ovs-if-br0
+        type: ovs-interface
         ifname: br0
-        type: ovs-bridge
-        ipv4.addresses: "{{ br0_ip }}/24"
+        master: ovs-port-br0
+        ip4: "{{ br0_ip }}/24"
         gw4: "{{ ovs_bridges.br0.ip.gateway }}"
-        dns4: "{{ ovs_bridges.br0.ip.dns }}"
-        method4: manual
-        method6: disabled
+        dns4: 
+          - "{{ ovs_bridges.br0.ip.dns[0] }}"
+          - "{{ ovs_bridges.br0.ip.dns[1] }}"
+        mtu: "{{ ovs_bridges.br0.mtu }}"
         state: present
+        autoconnect: true
+ 
+    - name: Creating OVS bond port br0bond0
+      ansible.builtin.command: "nmcli connection add type ovs-port conn.interface br0bond0 master br0 con-name ovs-port-br0bond0"
+      #ansible.builtin.command: "nmcli connection modify br0bond0 ovs-port.bond-mode {{ ovs_bridges.br0.br0bond0.mode }}"
+      changed_when: false # nmcli doesn't track current state easily, so we skip reporting change if already set
+    
+    - name: Attach physical interfaces to bond
+      ansible.builtin.command: >
+        nmcli connection add type ethernet
+        conn.interface "{{ item }}"
+        master ovs-port-br0bond0
+        con-name "ovs-br0-if-{{ item }}"
+        mtu "{{ ovs_bridges.br0.mtu }}"
+      loop: "{{ ovs_bridges.br0.br0bond0.uplinks }}"
 
-    #####################################################################
-    # Bring bridge up
-    #####################################################################
 
-    - name: Activate br0
-      command: nmcli connection up br0
-      register: br0_up
-      changed_when: "'successfully' in br0_up.stdout | lower"
-      failed_when: false
+      #Configuring bond monitoring and mode
+    - name: Configure bond mode (active-backup, balance-slb, or balance-tcp)
+      ansible.builtin.command:
+        cmd: >
+          nmcli con modify ovs-port-br0bond0
+          ovs-port.bond-mode {{ ovs_bridges.br0.br0bond0.mode }}
 
-    #####################################################################
-    # Verify OVS configuration
-    #####################################################################
-
-    - name: Show OVS configuration
-      command: ovs-vsctl show
-      register: ovs_status
-      changed_when: false
-
-    - name: Display OVS configuration
-      debug:
-        var: ovs_status.stdout_lines
+    - name: If bond mode is balance-tcp then 802.3ad active
+      ansible.builtin.command: 
+        cmd: >
+          nmcli con modify ovs-port-br0bond0 ovs-port.lacp active
+      when: ovs_bridges.br0.br0bond0.mode == 'balance-tcp'
+ 
+     # Bring up bridge and bonds
+    - name: Reload NetworkManager connections
+      ansible.builtin.command:
+        cmd: nmcli con reload
+    
+    - name: Bring up OVS connections
+      ansible.builtin.command:
+        cmd: "nmcli con up {{ item }}"
+      loop:
+        - "ovs-port-br0bond0"
+        - "ovs-br0-if-{{ ovs_bridges.br0.br0bond0.uplinks[0] }}"
+        - "ovs-br0-if-{{ ovs_bridges.br0.br0bond0.uplinks[1] }}"
+        - "ovs-port-br0"
+        - "ovs-if-br0"
 
   when: ovs_bridges.br0.enabled | bool

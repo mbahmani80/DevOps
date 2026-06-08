@@ -1,19 +1,34 @@
+ovs_cleanup: true 
+ovs_packages: false
+ovs_br0: false
+ovs_br1: false
+ovs_br2: false
+ovs_bond: false
+ovs_vlans: false
+ovs_vlan_interfaces: false
+libvirt_qemu_bridge_access: false
+libvirt_add_br0_to_KVM: false
+libvirt_add_br1_to_KVM: false
+libvirt_add_br2_to_KVM: false
+
 ovs_bridges:
 
   br0:
     enabled: true
+    name: br0
     mtu: 1500
 
-    br0bond0:
+    bond:
+      name: br0bond0
       mode: active-backup
       uplinks:
-        - ens160
         - ens193
+        - ens161
 
-    ip:
-      subnet: 192.168.100
+    ip_info:
+      ip: 192.168.178.35
       prefix: 24
-      gateway: 192.168.100.1
+      gateway: 192.168.178.1
 
       dns:
         - 8.8.8.8
@@ -22,13 +37,12 @@ ovs_bridges:
 
   br1:
     enabled: true
+    name: br1
     mtu: 9000
 
     bond:
-      enabled: true
       name: br1bond1
       mode: lacp
-
       uplinks:
         - enp3s0
         - enp4s0
@@ -55,13 +69,13 @@ ovs_bridges:
 
   br2:
     enabled: false
+    name: br2
     mtu: 9000
 
     bond:
       enabled: true
-      name: br2bond1
+      name: br2bond2
       mode: balance-slb
-
       uplinks:
         - enp5s0
         - enp6s0

@@ -5,15 +5,14 @@
   gather_facts: no
 
   roles:
-#    - ovs_cleanup
-#    - ovs_packages
-    - ovs_br0
-#    - ovs_br1
-#    - ovs_br2
-#    - ovs_bond 
-#    - ovs_vlans
-#    - ovs_vlan_interfaces
-#    - libvirt_qemu_bridge_access
-#    - libvirt_add_br0_to_KVM
-#    - libvirt_add_br1_to_KVM
-#    - libvirt_add_br2_to_KVM
+    - { role: ovs_cleanup, when: ovs_cleanup }
+    - { role: ovs_packages, when: ovs_packages }
+    - { role: ovs_br0, when: ovs_br0 }
+    - { role: ovs_br1, when: ovs_br1 }
+    - { role: ovs_br2, when: ovs_br2 }
+    - { role: ovs_vlans, when: ovs_vlans }
+    - { role: ovs_vlan_interfaces, when: ovs_vlan_interfaces }
+    - { role: libvirt_qemu_bridge_access, when: libvirt_qemu_bridge_access }
+    - { role: libvirt_add_br0_to_KVM, when: libvirt_add_br0_to_KVM }
+    - { role: libvirt_add_br1_to_KVM, when: libvirt_add_br1_to_KVM }
+    - { role: libvirt_add_br2_to_KVM, when: libvirt_add_br2_to_KVM }
