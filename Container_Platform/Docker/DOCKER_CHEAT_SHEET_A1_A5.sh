@@ -83,9 +83,16 @@ docker run
 docker create
   Creates a container without starting it.
   Useful when configuration must be completed before startup.
-
 docker start
   Starts a previously created or stopped container.
+# Example:
+# Create the container, naming it 'my-web'
+docker create --name my-web -p 8080:80 -v $(pwd)/index.html:/usr/share/nginx/html/index.html:ro nginx:alpine
+# Create a custom welcome page
+echo "<h1>Hello! This is my custom config.</h1>" > index.html
+# Starts created container
+docker start my-web
+
 
 
 EXEC VS ATTACH
