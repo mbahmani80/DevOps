@@ -92,7 +92,9 @@ docker create --name my-web -p 8080:80 -v $(pwd)/index.html:/usr/share/nginx/htm
 echo "<h1>Hello! This is my custom config.</h1>" > index.html
 # Starts created container
 docker start my-web
-
+# Check nginx Webserver
+$ curl http://127.0.0.1:8080
+<h1>Hello! This is my custom config.</h1>
 
 
 EXEC VS ATTACH
@@ -145,16 +147,42 @@ Export image:
 Import image:
   docker load
 
-Option 1: Save the original Alpine image
-docker save -o alpine_myversion.tar alpine
-or
-docker save alpine > alpine_myversion.tar
 
-Option 2: Save the current state of the running container
+
+| Command         | Purpose               |
+| --------------- | --------------------- |
+| docker commit   | Container → New Image |
+| docker save     | Image → TAR archive   |
+| docker load     | TAR archive → Image   |
+
+
+Original image (alpine)
+        ↓ run
+Container
+        ↓ modify files
+Modified container
+        ↓ docker commit
+New image (alpine_myversion)
+        ↓ docker save
+alpine_myversion.tar
+        ↓ docker load
+Image restored elsewhere
+
+
+
+1. Create a new image from the current state of the running container 
 docker commit xenodochial_joliot alpine_myversion
 docker images
+
+2. Export that image
+2.1: Save the original Alpine image
 docker save -o alpine_myversion.tar alpine_myversion
+or
+docker save alpine > alpine_myversion.tar
+# we could compress it
 gzip alpine_myversion.tar
+2.2: Load that image
+docker load < alpine_myversion.tar
 docker images
 
 
