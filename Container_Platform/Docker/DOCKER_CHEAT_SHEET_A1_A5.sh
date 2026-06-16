@@ -73,11 +73,31 @@ Important:
 
 3. KEY CONCEPTS
 ===================================================================================================
+CONTAINER LIFECYCLE
+-------------------
+
+Create and start container:
+  docker run <image>
+
+Stop container:
+  docker stop <container>
+
+Start container:
+  docker start <container>
+
+Restart container:
+  docker restart <container>
+
+Remove container:
+  docker rm <container>
+
+Create container only:
+  docker create <image>
 
 CONTAINER LIFECYCLE
 -------------------
 
-$ docker run
+$ docker run -dit <image>
   Creates and starts a container in a single step.
 
 $ docker run -dit ubuntu
@@ -94,12 +114,24 @@ CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS   
 00dbc1c5d914   ubuntu         "/bin/bash"              4 seconds ago   Up 3 seconds                                             naughty_jang
 $
 
-$ docker create
-  Creates a container without starting it.
+$ docker create <image>
+#  Creates a container without starting it.
   Useful when configuration must be completed before startup.
 $ docker start
   Starts a previously created or stopped container.
 # Example:
+$ docker run  --cpuset-cpus=0 --name myweb2 -p 8081:80 -d nginx:alpine
+3010dcedf8077b04c2798085259979a0ffb76005c27327c64c33a38572a02a43
+$ curl http://127.0.0.1:8081
+$ cat index.html
+Hi there I am using docker create
+$ docker cp index.html myweb2:/usr/share/nginx/html/index.html
+Successfully copied 34B (transferred 2.05kB) to myweb2:/usr/share/nginx/html/index.html
+$ curl http://127.0.0.1:8081
+Hi there I am using docker create
+$
+
+
 # Create the container, naming it 'my-web'
 $ docker create --name my-web -p 8080:80 -v $(pwd)/index.html:/usr/share/nginx/html/index.html:ro nginx:alpine
 # Create a custom welcome page
@@ -124,10 +156,11 @@ Why use exec?
   - Does not affect the main application process
 
 Example:
-  docker exec -it my_container bash
+  docker exec -it <container> bash
 
-docker attach
-  #Connects directly to the container's primary process (PID 1).
+docker attach <container>
+  # Connects directly to the container's primary process (PID 1). 
+  # I can kill -9 other bash without terminating the container
 
 Risks:
   - Ctrl+C may stop the main application
@@ -137,6 +170,23 @@ Detach safely:
   Ctrl+P
   Ctrl+Q
 #===================================================================================================
+DEBUGGING AND INSPECTION
+------------------------
+
+List running containers:
+  docker ps
+
+List all containers:
+  docker ps -a
+
+View logs:
+  docker logs <container>
+
+Execute command inside container:
+  docker exec <container> <command>
+
+Inspect container details:
+  docker inspect <container>
 
 
 
@@ -185,11 +235,33 @@ Image restored elsewhere
 
 
 1. Create a new image from the current state of the running container 
+docker commit <container> <new_image_name> 
+docker images
 docker commit xenodochial_joliot alpine_myversion
 docker images
 
+$ docker run -dit ubuntu
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED       STATUS       PORTS                                     NAMES
+00dbc1c5d914   ubuntu         "/bin/bash"              2 hours ago   Up 2 hours                                             naughty_jang
+$ docker attach 00dbc1c5d914
+root@00dbc1c5d914:/# apt update -y && apt upgrade -y
+root@00dbc1c5d914:/# apt install tree
+Detach safely:
+  Ctrl+P
+  Ctrl+Q
+$ docker commit 00dbc1c5d914 myubuntu_tree
+sha256:63a8043c26dba7cd0b74637f9e6d6f6e928e64fe95c8f8b915606cc4dec2fd30
+$ docker images
+IMAGE                  ID             DISK USAGE   CONTENT SIZE   EXTRA
+myubuntu_tree:latest   63a8043c26db        241MB         74.6MB
+ubuntu:latest          f3d28607ddd7        160MB         45.3MB    U
+$
+
+
 2. Export that image
 2.1: Save the original Alpine image
+docker save -o <new_image_file_name> <image_name>
 docker save -o alpine_myversion.tar alpine_myversion
 or
 docker save alpine > alpine_myversion.tar
@@ -199,46 +271,18 @@ gzip alpine_myversion.tar
 docker load < alpine_myversion.tar
 docker images
 
-
-CONTAINER LIFECYCLE
--------------------
-
-Create and start container:
-  docker run <image>
-
-Create container only:
-  docker create <image>
-
-Start container:
-  docker start <container>
-
-Stop container:
-  docker stop <container>
-
-Restart container:
-  docker restart <container>
-
-Remove container:
-  docker rm <container>
+$ docker images
+IMAGE                  ID             DISK USAGE   CONTENT SIZE   EXTRA
+myubuntu_tree:latest   63a8043c26db        241MB         74.6MB
+ubuntu:latest          f3d28607ddd7        160MB         45.3MB    U
+$ docker save myubuntu_tree:latest > myubuntu_tree.tar
+$ ls myubuntu_tree.tar
+myubuntu_tree.tar
+$
 
 
-DEBUGGING AND INSPECTION
-------------------------
 
-List running containers:
-  docker ps
 
-List all containers:
-  docker ps -a
-
-View logs:
-  docker logs <container>
-
-Execute command inside container:
-  docker exec <container> <command>
-
-Inspect container details:
-  docker inspect <container>
 #===================================================================================================
 
 
@@ -278,6 +322,34 @@ Force remove all containers:
 Remove only exited containers:
   docker rm $(docker ps -aq -f status=exited)
 #===================================================================================================
+
+docker cp
+
+
+
+$ docker run  --cpuset-cpus=0 --name myweb2 -p 8081:80 -d nginx:alpine
+3010dcedf8077b04c2798085259979a0ffb76005c27327c64c33a38572a02a43
+
+### ✅ Step 1: Confirm your container name
+$ curl http://127.0.0.1:8081
+$ cat index.html
+Hi there I am using docker create
+
+### ✅ Step 2: Copy your custom index.html into the container
+In the `nginx:alpine` image, the default web root is:
+/usr/share/nginx/html/
+
+So the file you want to replace is:
+/usr/share/nginx/html/index.html
+
+From your host where `index.html` exists:
+docker cp index.html myweb2:/usr/share/nginx/html/index.html
+Successfully copied 34B (transferred 2.05kB) to myweb2:/usr/share/nginx/html/index.html
+
+### ✅ Step 3: Refresh in browser or curl
+curl http://127.0.0.1:8081
+#You should now see:
+Hi there I am using docker create
 
 
 6. MOST COMMON COMMANDS
