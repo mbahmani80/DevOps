@@ -77,21 +77,35 @@ Important:
 CONTAINER LIFECYCLE
 -------------------
 
-docker run
+$ docker run
   Creates and starts a container in a single step.
 
-docker create
+$ docker run -dit ubuntu
+Unable to find image 'ubuntu:latest' locally
+latest: Pulling from library/ubuntu
+1c24335ddd46: Pull complete
+6f5c5aa4e145: Pull complete
+9bcf140d7f0f: Download complete
+Digest: sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64
+Status: Downloaded newer image for ubuntu:latest
+00dbc1c5d9147ada25fe029788f872c8156a82a3867a71e0dae030fcbade3c9b
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                                     NAMES
+00dbc1c5d914   ubuntu         "/bin/bash"              4 seconds ago   Up 3 seconds                                             naughty_jang
+$
+
+$ docker create
   Creates a container without starting it.
   Useful when configuration must be completed before startup.
-docker start
+$ docker start
   Starts a previously created or stopped container.
 # Example:
 # Create the container, naming it 'my-web'
-docker create --name my-web -p 8080:80 -v $(pwd)/index.html:/usr/share/nginx/html/index.html:ro nginx:alpine
+$ docker create --name my-web -p 8080:80 -v $(pwd)/index.html:/usr/share/nginx/html/index.html:ro nginx:alpine
 # Create a custom welcome page
-echo "<h1>Hello! This is my custom config.</h1>" > index.html
+$ echo "<h1>Hello! This is my custom config.</h1>" > index.html
 # Starts created container
-docker start my-web
+$ docker start my-web
 # Check nginx Webserver
 $ curl http://127.0.0.1:8080
 <h1>Hello! This is my custom config.</h1>
