@@ -8,12 +8,12 @@
   apt:
     autoclean: yes
     autoremove: yes
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
 
 - name: Refresh apt metadata
   apt:
     update_cache: yes
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
 
 
 # -------------------------
@@ -21,12 +21,12 @@
 # -------------------------
 - name: Clean dnf cache
   command: dnf clean all
-  when: ansible_os_family == "RedHat"
+  when: ansible_facts.os_family == "RedHat"
   changed_when: false
 
 - name: Rebuild dnf cache
   command: dnf makecache
-  when: ansible_os_family == "RedHat"
+  when: ansible_facts.os_family == "RedHat"
   changed_when: false
 
 
@@ -35,11 +35,11 @@
 # -------------------------
 - name: Clean zypper cache
   command: zypper clean --all
-  when: ansible_os_family == "Suse"
+  when: ansible_facts.os_family == "Suse"
   changed_when: false
 
 - name: Refresh zypper repositories
   command: zypper refresh
-  when: ansible_os_family == "Suse"
+  when: ansible_facts.os_family == "Suse"
   changed_when: false
 

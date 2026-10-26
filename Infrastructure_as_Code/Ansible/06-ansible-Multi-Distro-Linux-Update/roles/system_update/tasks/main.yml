@@ -2,17 +2,17 @@
 # tasks file for roles/system_update
 - name: Include Debian tasks
   include_tasks: debian.yml
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
 
 
 - name: Include RedHat tasks
   include_tasks: redhat.yml
-  when: ansible_os_family == "RedHat"
+  when: ansible_facts.os_family == "RedHat"
 
 
 - name: Include SUSE tasks
   include_tasks: suse.yml
-  when: ansible_os_family == "Suse"
+  when: ansible_facts.os_family == "Suse"
 
 
 # Final report per host
